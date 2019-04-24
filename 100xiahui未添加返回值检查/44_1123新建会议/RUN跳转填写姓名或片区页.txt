@@ -1,0 +1,46 @@
+FIELD
+{
+    .1123.通知方式;
+    .1277.新建会议表的id存放;
+    .1278.新建会议表的id存放;
+}
+VAR
+{
+    int current_form, cp, target_form, SVret;
+    String notice_way;
+}
+CLIENT
+{
+    current_form = CURRENT.FormID;
+    cp = CURRENT.Record;
+    notice_way = FW_GetValue(1123, 通知方式, cp);
+    if(notice_way == "指定片区")
+    {
+        target_form = 1277;
+    }else if(notice_way == "指定姓名")
+    {
+        target_form = 1278;
+    }else if(notice_way == "本片区")
+    {
+        return(0);
+    }
+}
+SERVER
+{
+    SVret = FW_SetValue_w(target_form, 新建会议表的id存放, cp, current_form);if(SVret!=0){FW_Dialog1(1123机构例会记录表);return(0);}
+    return(GotoClient);
+}
+CLIENT
+{
+    st0 = FW_GotoFormPage(target_form, cp);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT{}
+SERVER
+{
+    return(st0);
+}
+

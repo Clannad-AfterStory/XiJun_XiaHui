@@ -1,0 +1,19 @@
+FIELD
+{
+    .1122.Query会议类型;
+}
+VAR
+{
+    int SVret;
+    Struct0 st0_1122;
+}
+CLIENT
+{
+    SVret = FW_SetValue_w(1122, Query会议类型, 0, "机构例会");
+    if(SVret != 0)
+    {
+        FW_Dialog1("对表格1122机构例会列表（主管以上）中的Query会议类型赋值失败！");
+        return(0);
+    }
+    st0_1122 = FW_RecordSort(1122, Query会议类型, 0);
+}

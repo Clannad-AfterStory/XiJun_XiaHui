@@ -1,0 +1,24 @@
+FIELD
+{
+    .1278.新建会议表的id存放;
+}
+VAR
+{
+    int cp, target_form;
+    Struct0 st0;
+}
+CLIENT
+{
+    cp = FW_GetCurrentRecNum();
+    target_form = FW_GetValue(1278, 新建会议表的id存放, cp);
+    st0 = FW_GotoFormPage(target_form, cp);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT{}
+SERVER
+{
+    return(st0);
+}

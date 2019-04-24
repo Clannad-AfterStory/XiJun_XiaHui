@@ -1,0 +1,35 @@
+FIELD
+{
+    .1183.姓名;
+    .1183.员工状态;
+
+    .1087.姓名;
+    .1087.State;
+}
+VAR
+{
+    int i, j, total, total_1087, rec, rec_1087;
+    String condition1, name, message1, message2;
+    Struct2 st2, st2_1087;
+}
+SERVER
+{
+    condition1 = "离职";
+    st2 = FW_FindRecords("1183, condition1@员工状态", 0);
+    total = st2.count;
+    for(i=0; i<total; i++)
+    {   rec = st2.RecordNoList.Get[i];
+        name = FW_GetValue(1183, 姓名, rec);
+        st2_1087 = FW_FindRecords("1087, name@姓名", 0);
+        total_1087 = st2.count;
+        for(j=0; j<total_1087; j++)
+        {
+            rec_1087 = st2_1087.RecordNoList.Get[j];
+            FW_SetValue_w(1087, State, rec, "停止使用");
+        }
+    }
+    message1 = total.toString;
+    message2 = total_1087.toString;
+    condition1 = message1 + "." +message2;
+    FW_ShowMessage(condition1);
+}

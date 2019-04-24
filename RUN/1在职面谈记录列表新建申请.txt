@@ -1,0 +1,80 @@
+FIELD
+{
+    .1105.姓名;
+    .1105.UserName;
+    .1105.状态;
+    .1105.面谈人;
+    .1105.面谈人工号;
+    .1087.UserName;
+    .1087.姓名;
+}
+VAR
+{
+    int SVret;
+    String status, current_us, current_name, staff_name;
+    int error_code, i, np, 1105total, rec1087, exist;
+    Struct0 st0_1105;
+    Struct2 st2_findus_in1105, st2_findus_in1087;
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+}
+SERVER
+{
+    st2_findus_in1105 = FW_FindRecords("1105, current_us@面谈人工号", 0);
+    if(st2_findus_in1105.mError == 0)
+    {
+        1105total = st2_findus_in1105.count;
+        for(i=0; i<1105total; i++)
+        {
+            np = st2_findus_in1105.RecordNoList.Get[i];
+            staff_name = FW_GetValue(1105, 姓名, np);
+            status = FW_GetValue(1105, 状态, np);
+            if((staff_name == "")&&(status == "待完善"))
+            {
+                exist = 1;
+                break;
+            }
+        }
+    }else
+    {
+        exist = 0;
+        np = FW_AddNewPage_w(1105);
+        SVret = FW_SetValue_w(1105, 状态, np, "待完善");if(SVret!=0){FW_Dialog1(1271在职面谈记录列表);return(0);}
+        SVret = FW_SetValue_w(1105, 面谈人工号, np, current_us);if(SVret!=0){FW_Dialog1(1271在职面谈记录列表);return(0);}
+    }
+    st2_findus_in1087 = FW_FindRecords("1087, current_us@UserName", 1);
+    if(st2_findus_in1087.mError == 0)
+    {
+        error_code = 0;
+        rec1087 = st2_findus_in1087.RecordNoList.Get[0];
+        current_name = FW_GetValue(1087, 姓名, rec1087);
+        SVret = FW_SetValue_w(1105, 面谈人, np, current_name);if(SVret!=0){FW_Dialog1(1271在职面谈记录列表);return(0);}
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    st0_1105 = FW_GotoFormPage(1105, np);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+    if(exist == 0)
+    {
+        SVret = FW_SetValue_w(1105, 状态, np,"待完善");if(SVret!=0){FW_Dialog1(1271在职面谈记录列表);return(0);}
+        SVret = FW_SetValue_w(1105, 面谈人工号, np, current_us);if(SVret!=0){FW_Dialog1(1271在职面谈记录列表);return(0);}
+    }
+    if(error_code == 0)
+    {
+        SVret = FW_SetValue_w(1105, 面谈人, np, current_name);if(SVret!=0){FW_Dialog1(1271在职面谈记录列表);return(0);}
+    }
+}
+SERVER
+{
+    return(st0_1105);
+}

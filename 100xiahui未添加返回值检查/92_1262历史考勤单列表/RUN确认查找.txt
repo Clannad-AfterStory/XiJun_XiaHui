@@ -1,0 +1,41 @@
+FIELD
+{
+    .1262.QueryUserName;
+    .1262.QueryGroupID;
+    .1262.Query考勤年月;
+    .1262.Query姓名;
+}
+VAR
+{
+    int SVret;
+    String name, date;
+}
+
+CLIENT
+{
+    name = FW_GetValue(1262, Query姓名, 0);
+    SVret = FW_SetValue_w(1262, QueryGroupID, 0, "****");if(SVret!=0){FW_Dialog1(92_1262历史考勤单列表);return(0);}
+    SVret = FW_SetValue_w(1262, QueryUserName, 0, "****");if(SVret!=0){FW_Dialog1(92_1262历史考勤单列表);return(0);}
+    if(name == "****")
+    {
+        date = FW_GetValue(1262, Query考勤年月, 0);
+        if(date == "****")
+        {
+            FW_Dialog1(无法查找，姓名和考勤年月不能都为空！);
+            return(0);
+        }else if(date != "****")
+        {
+            FW_RecordSort(1262, Query考勤年月, 0);
+        }
+    }else
+    {
+        date = FW_GetValue(1262, Query考勤年月, 0);
+        if(date == "****")
+        {
+            FW_RecordSort(1262, Query姓名, 0);
+        }else if(date != "****")
+        {
+            FW_RecordSort(1262, Query考勤年月, Query姓名, 0);
+        }
+    }
+}

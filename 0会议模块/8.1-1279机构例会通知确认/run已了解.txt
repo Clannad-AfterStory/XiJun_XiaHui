@@ -1,0 +1,53 @@
+FIELD
+{
+    .1279.状态;
+
+    .1235.事件状态;
+    .1235.审批状态;
+    .1235.处理人工号;
+    .1235.处理日期;
+}
+VAR
+{
+    String record_status, current_us, status, current_date;
+    Struct2 st2_1235;
+    int cp, rec, SVret, error;
+}
+CLIENT
+{
+    cp = CURRENT.Record;
+    record_status = FW_GetValue(1279, 状态, cp);
+    record_status = record_status.Left(5);
+    if(record_status != "已完成记录")
+    {
+        FW_Dialog1("当记录人员完成此会议记录后才能进行此操作！");
+        return(0);
+    }
+    current_us = FW_GetUserID(2);
+    status = "会议已记录完成待查看";
+    current_date = FW_GetSysDate(0);
+}
+SERVER
+{
+    st2_1235 = FW_FindRecords("1235, current_us@处理人工号, status@审批状态", 1);
+    if(st2_1235.mError == 0)
+    {
+        rec = st2_1235.RecordNoList.Get[0];
+        SVret = FW_SetValue_w(1235, 事件状态, rec, "已处理");if(SVret!=0){FW_Dialog1(1179机构例会用表通知查看用);return(0);}
+        SVret = FW_SetValue_w(1235, 审批状态, rec, "会议记录表已了解查看");if(SVret!=0){FW_Dialog1(1179机构例会用表通知查看用);return(0);}
+        SVret = FW_SetValue_w(1235, 处理日期, rec, current_date);if(SVret!=0){FW_Dialog1(1179机构例会用表通知查看用);return(0);}
+    }else
+    {
+        error = 1;
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    if(error == 1)
+    {
+        FW_Dialog1("此会议记录已了解过！");
+        return(0);
+    }
+    FW_Dialog1("处理成功，待办事项不再显示此会议已记录完成的待查看提示！");
+}

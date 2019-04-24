@@ -1,0 +1,34 @@
+FIELD
+{
+    .1275.会议类型;
+    .1275.通知方式;
+}
+VAR
+{
+    int cp, SVret;
+    String meeting_type, notice_way;
+}
+CLIENT
+{
+    cp = CURRENT.Record;
+    meeting_type = FW_GetValue(1275, 会议类型, cp);
+    if(meeting_type == "片区例会")
+    {
+        SVret = FW_SetValue_w(1275, 通知方式, cp, "本片区");
+        if(SVret != 0)
+        {
+            FW_Dialog1("表格_1275中对 通知方式 赋值失败！");
+        }
+    }
+}
+SERVER
+{
+    if(meeting_type == "片区例会")
+    {
+        SVret = FW_SetValue_w(1275, 通知方式, cp, "本片区");
+        if(SVret != 0)
+        {
+            FW_Dialog1("表格_1275中对 通知方式 赋值失败！");
+        }
+    }
+}

@@ -1,0 +1,48 @@
+FIELD
+{
+    .1087.POST;
+    .1087.UserName;
+}
+VAR
+{
+    String current_us, current_post;
+    int error, rec_1087, ret1, ret2, form_id;
+    Struct2 st2_us_in1087;
+    Struct0 st0;
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+}
+SERVER
+{
+    st2_us_in1087 = FW_FindRecords("1087, current_us@UserName", 1);
+    error = 0;
+    if(st2_us_in1087.mError != 0){error = 1;return(GotoClient)}
+    rec_1087 = st2_us_in1087.RecordNoList.Get[0];
+    current_post = FW_GetValue(1087, POST, rec_1087);
+    return(GotoClient);
+}
+CLIENT
+{
+    if(error == 1){FW_Dialog1("在1087用户表中查找当前用户账号出错！");return(0);}
+    ret1 =  current_post.Find("项目工作员", 0);
+    ret2 = current_post.Find("助老员", 0);
+    if((ret1 != -1)||(ret2 != -1))
+    {
+        form_id = 1269;
+    }else
+    {
+        form_id = 1122;
+    }
+    st0 = FW_GotoFormPage(form_id, 0);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT{}
+SERVER
+{
+    return(st0);
+}

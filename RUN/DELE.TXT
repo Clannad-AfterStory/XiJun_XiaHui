@@ -1,0 +1,11 @@
+VAR
+{
+    int CP;
+}
+
+SERVER
+{
+    CP = FW_GetCurrentRecNum();
+    FW_DeleteRecords_w(.CP(ALL)); 
+}
+

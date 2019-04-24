@@ -1,0 +1,50 @@
+FIELD
+{
+    .1145.社区;
+    .1145.预约事宜;
+    .1145.预约日期;
+    .1145.开始使用时间;
+    .1145.结束使用时间;
+    .1145.出发地;
+    .1145.目的地;
+    .1145.联系方式;
+
+    .1183.UserName;
+    .1183.本人联系方式;
+    .1183.现属部门;
+}
+VAR
+{
+    int rec, cp, error;
+    String us, phone, group;
+    Struct2 st2_1183;
+}
+
+CLIENT
+{
+    us = FW_GetUserID(2);
+}
+SERVER
+{
+    st2_1183 = FW_FindRecords("1183, us@UserName", 1);
+    if(st2_1183.mError == 0)
+    {
+        rec = st2_1183.RecordNoList.Get[0];
+        phone = FW_GetValue(1183, 本人联系方式, rec);
+        group = FW_GetValue(1183, 现属部门, rec);
+    }else{error = 1;}
+    return(GotoClient);
+}
+CLIENT
+{
+    if(error == 1){FW_Dialog1("查找1183人事档案中的当前账号资料失败！");}
+    cp = CURRENT.Record;
+    FW_SetValue_w(1145, 预约日期, cp, "");
+    FW_SetValue_w(1145, 开始使用时间, cp, "");
+    FW_SetValue_w(1145, 结束使用时间, cp, "");
+    FW_SetValue_w(1145, 出发地, cp, "");
+    FW_SetValue_w(1145, 目的地, cp, "");
+    FW_SetValue_w(1145, 联系方式, cp, phone);
+    FW_SetValue_w(1145, 社区, cp, group);
+    FW_SetValue_w(1145, 预约事宜, cp, "");
+}

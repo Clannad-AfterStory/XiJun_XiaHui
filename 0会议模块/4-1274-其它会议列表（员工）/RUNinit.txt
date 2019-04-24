@@ -1,0 +1,20 @@
+FIELD
+{
+    .1274.Query会议类型;
+}
+VAR
+{
+    int SVret;
+    Struct0 st0_1274;
+}
+CLIENT
+{
+    SVret = FW_SetValue_w(1274, Query会议类型, 0, "片区例会");
+    if(SVret != 0)
+    {
+        FW_Dialog1("对表格1274其它会议列表（助老员和社工）中的Query会议类型赋值失败！");
+        return(0);
+    }
+    st0_1274 = FW_RecordSort(1274, Query会议类型, 0);
+}
+

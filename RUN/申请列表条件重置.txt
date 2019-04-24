@@ -1,0 +1,22 @@
+FIELD
+{
+    .1217.QueryUserName1;
+    .1217.Query考勤年月;
+    .1217.Query姓名;
+    .1217.QueryGroupID;
+    .1217.Query状态;
+}
+VAR
+{
+    int ret;
+    Struct0 st0_1217;
+}
+CLIENT
+{
+    ret = FW_SetValue_w(1217, Query考勤年月, 0, "****");if(ret != 0){FW_Dialog1("1217_Query考勤年月_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1217, QueryUserName1, 0, "****");if(ret != 0){FW_Dialog1("1217_QueryUserName1_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1217, Query姓名, 0, "****");if(ret != 0){FW_Dialog1("1217_Query姓名_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1217, QueryGroupID, 0, "****");if(ret != 0){FW_Dialog1("1217_QueryGroupID_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1217, Query状态, 0, "****");if(ret != 0){FW_Dialog1("1217_Query状态_setvalue_error!");return(0);}
+    st0_1217 = FW_RecordSort(1217, Query考勤年月, 0);if(st0_1217.mError != 0){FW_Dialog1(1217_RecordSort_Failed!);}
+}

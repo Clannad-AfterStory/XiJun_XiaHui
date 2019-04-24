@@ -1,0 +1,20 @@
+FIELD
+{
+    .1273.Query会议类型;
+}
+VAR
+{
+    int SVret;
+    Struct0 st0_1273;
+}
+CLIENT
+{
+    SVret = FW_SetValue_w(1273, Query会议类型, 0, "管理层例会");
+    if(SVret != 0)
+    {
+        FW_Dialog1("对表格1273其它会议列表（主管以上）中的Query会议类型赋值失败！");
+        return(0);
+    }
+    st0_1273 = FW_RecordSort(1273, Query会议类型, 0);
+}
+

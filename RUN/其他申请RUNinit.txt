@@ -1,0 +1,20 @@
+FIELD
+{
+    .1268.QueryUserName;
+    .1268.Query姓名;
+    .1268.QueryGroupID;
+    .1268.Query状态;
+}
+VAR
+{
+    int ret;
+    Struct0 st0_1268;
+}
+CLIENT
+{
+    ret = FW_SetValue_w(1268, QueryUserName, 0, "****");if(ret != 0){FW_Dialog1("1268_QueryUserName_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1268, Query姓名, 0, "****");if(ret != 0){FW_Dialog1("1268_Query姓名_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1268, QueryGroupID, 0, "****");if(ret != 0){FW_Dialog1("1268_QueryGroupID_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1268, Query状态, 0, "已完成");if(ret != 0){FW_Dialog1("1268_Query状态_setvalue_error!");return(0);}
+    st0_1268 = FW_RecordSort(1268, Query状态, 0);if(st0_1268.mError != 0){FW_Dialog1(1268_RecordSort_Failed!);}
+}

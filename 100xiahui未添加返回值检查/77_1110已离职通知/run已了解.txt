@@ -1,0 +1,53 @@
+FIELD
+{
+    .1235.事件状态;
+
+    .1257.UserName2最终审批;
+    .1257.UserName4;
+    .1257.UserName5;
+    .1257.1235主管通知页;
+    .1257.1235总监通知页;
+    .1257.1235主任通知页;
+}
+VAR
+{
+    int cp, pending_page, ret, error_code;
+    String us_current, us2, us4, us5, date_current;
+}
+CLIENT
+{
+    cp = FW_GetCurrentRecNum();
+    us_current = FW_GetUserID(2);
+}
+SERVER
+{
+    us2 = FW_GetValue(1257, UserName2最终审批, cp);
+    us4 = FW_GetValue(1257, UserName4, cp);
+    us5 = FW_GetValue(1257, UserName5, cp);
+    if(us_current == us2)
+    {
+        pending_page = FW_GetValue(1257, 1235主管通知页, cp);
+    }else if(us_current == us4)
+    {
+        pending_page = FW_GetValue(1257, 1235总监通知页, cp);
+    }else if(us_current == us5)
+    {
+        pending_page = FW_GetValue(1257, 1235主任通知页, cp);
+    }
+    ret = FW_SetValue_w(1235, 事件状态, pending_page, "已处理");
+    error_code = -1;
+    if(ret != 0)
+    {
+        error_code = 1;
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    if(error_code == 1)
+    {
+        FW_Dialog1(1257的-run已了解-中对1235的事件状态赋值检查出现错误！);
+        return(0);
+    }
+    FW_Dialog1(了解完成！);
+}

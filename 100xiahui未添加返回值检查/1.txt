@@ -1,0 +1,98 @@
+FIELD
+{
+    .1138.考勤导出时状态;
+    .1138.状态;
+    .1138.考勤年月;
+}
+VAR
+{
+    String condition, attendance_date, status;
+    int rec1139, total, i, SVret, calculate;
+    Struct2 st2_1139;
+}
+SERVER
+{
+    total = FW_GetTotalRecords(1138);
+    for(i=0; i<total; i++)
+    {
+        SVret = FW_SetValue_w(1138, 考勤导出时状态, i, "");if(SVret!=0){FW_Dialog1(98_1044考勤申请);return(0);}
+    }
+    condition = "1138, RANGE(待*)@状态";
+    st2_1139 = FW_FindRecords(condition, 0);
+    total = st2_1139.count;
+    calculate = 0;
+    for(i=0; i<total; i++)
+    {
+        rec1139 = st2_1139.RecordNoList.Get[i];
+        attendance_date = FW_GetValue(1138, 考勤年月, rec1139);
+        status = FW_GetValue(1138, 状态, rec1139);
+        if((attendance_date == "2019年3月")||(status == "待提交"))
+        {
+            continue;
+        }
+        attendance_date = "申请单在导出考勤时还未通过";
+        SVret = FW_SetValue_w(1138, 考勤导出时状态, rec1139, attendance_date);if(SVret!=0){FW_Dialog1(98_1044考勤申请);return(0);}
+        calculate = calculate + 1;
+    }
+    FW_ShowMessage(calculate);
+}
+
+FIELD
+{
+    .1138.考勤年月;
+    .1138.请假起始日期;
+}
+VAR
+{
+    int SVret, total, i, I考勤起始月, calculate;
+    String date_begin,S考勤起始年月,S考勤起始年,S考勤起始月;
+}
+SERVER
+{
+    total = FW_GetTotalRecords(1138);
+    for(i=0; i<total; i++)
+    {
+        date_begin = FW_GetValue(1138, 请假起始日期, i);
+        if(date_begin == "")
+        {
+            SVret = FW_SetValue_w(1138, 考勤年月, i, "");if(SVret!=0){FW_Dialog1(98_1044考勤申请);return(0);}
+            continue;
+        }
+        S考勤起始年月 = date_begin.Left(7);
+        S考勤起始年 = S考勤起始年月.Left(4);
+        S考勤起始月 = S考勤起始年月.Mid(5);
+        I考勤起始月 = S考勤起始月.toIntege;
+        S考勤起始月 = I考勤起始月.toString;
+        S考勤起始年月 = S考勤起始年 + "年" + S考勤起始月 + "月";
+        SVret = FW_SetValue_w(1138, 考勤年月, i, S考勤起始年月);if(SVret!=0){FW_Dialog1(98_1044考勤申请);return(0);}
+        calculate = calculate + 1;
+    }
+    FW_ShowMessage(calculate);
+}
+
+FIELD
+{
+    .1139.GroupID;
+    .1139.GroupID1;
+    .1139.GroupID3;
+}
+VAR
+{
+    int total, i, rec;
+    String group;
+    Struct2 st2_group_in1139;
+}
+SERVER
+{
+    group = "未定";
+    st2_group_in1139 = FW_FindRecords("1139, group@GroupID", 0);
+    total = st2_group_in1139.count;
+    for(i=0; i<total; i++)
+    {
+        rec = st2_group_in1139.RecordNoList.Get[i];
+        FW_SetValue_w(1139, GroupID, rec, "海沧区");
+        FW_SetValue_w(1139, GroupID1, rec, "海沧区");
+        FW_SetValue_w(1139, GroupID3, rec, "海沧区");
+    }
+    FW_ShowMessage(i);
+}

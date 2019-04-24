@@ -1,0 +1,63 @@
+FIELD
+{
+    .1280.记录人员姓名;
+
+    .1087.UserName;
+    .1087.姓名;
+}
+VAR
+{
+    int cp, rec, targer_id;
+    String current_us, current_name, recorder;
+    Struct2 st2_1087;
+    Struct0 st0_1270;
+}
+CLIENT
+{
+    cp = FW_FormOpen(1087);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+    if((cp != 0)&&(cp != 1))
+    {
+        FW_Dialog1("打开用户表1087时失败！");
+        return(0)
+    }
+    cp = CURRENT.Record;
+    recorder = FW_GetValue(1280, 记录人员姓名, cp);
+    current_us = FW_GetUserID(2);
+    if(current_us != recorder)
+    {
+        st2_1087 = FW_FindRecords("1087, current_us@UserName", 1);
+        if(st2_1087.mError == 0)
+        {
+            rec = st2_1087.RecordNoList.Get[0];
+            current_name = FW_GetValue(1087, 姓名, rec);
+            if(current_name == recorder)
+            {
+                targer_id = 1270;
+            }else
+            {
+                FW_Dialog1("只有记录人员才能进行记录！");
+                return(0);
+            }
+        }
+    }else
+    {
+        targer_id = 1270;
+    }
+    st0_1270 = FW_GotoFormPage(targer_id, cp);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT{}
+SERVER
+{
+    return(st0_1270);
+}

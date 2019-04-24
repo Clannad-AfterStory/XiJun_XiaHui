@@ -1,0 +1,27 @@
+FIELD
+{
+    .1217.QueryUserName1;
+    .1217.Query考勤年月;
+}
+VAR
+{
+    int ret, int_month;
+    String username, date, year_month, year, str_month;
+    Struct0 st0_1217;
+}
+CLIENT
+{
+    username = FW_GetUserID(2);
+    ret = FW_SetValue_w(1217, QueryUserName1, 0, username);if(ret != 0){FW_Dialog1("1217_QueryUserName1_setvalue_error!");return(0);}
+
+    date = FW_GetSysDate(0);
+    year_month = date.Left(7);
+    year = date.Left(4);
+    str_month = year_month.Mid(5);
+    int_month = str_month.toIntege;
+    str_month = int_month.toString;
+    year_month = year + "年" + str_month + "月";
+    ret = FW_SetValue_w(1217, Query考勤年月, 0, year_month);if(ret != 0){FW_Dialog1("1217_Query考勤年月_setvalue_error!");return(0);}
+
+    st0_1217 = FW_RecordSort(1217, Query考勤年月, QueryUserName1, 0);if(st0_1217.mError != 0){FW_Dialog1(1217_RecordSort_Failed!);}
+}

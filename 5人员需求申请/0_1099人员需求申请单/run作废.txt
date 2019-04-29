@@ -1,0 +1,121 @@
+FIELD
+{
+    .1099.申请人部门;
+    .1099.申请日期;
+    .1099.申请岗位;
+    .1099.状态;
+    .1099.UserName1;
+    .1099.UserName2;
+    .1099.UserName3;
+    .1099.UserName4;
+    .1099.状态;
+    .1099.当前待处理标记Page;
+    .1235.事件状态;
+}
+VAR
+{
+    int SVret;
+    int cp, is_continue, is_cancel, markPage;
+    String us, username1, username2, username3, username4, status, groupid, apply_date, apply_post;
+    Struct0 st0_1157;
+}
+CLIENT
+{
+    us = FW_GetUserID(2);
+    cp = FW_GetCurrentRecNum();
+    status = FW_GetValue(1099, 状态, cp);
+    username1 = FW_GetValue(1099, UserName1, cp);
+    is_continue = FW_Dialog1("作废后无法恢复，是否继续？");
+    if(is_continue == 0){return(0);}
+}
+SERVER
+{
+    if((status == "未通过作废")||(status == "已通过作废")||(status == "作废"))
+    {
+        is_cancel = 1;
+        return(GotoClient);
+    }else if(status != "已通过")
+    {
+        if(us == username1)
+        {
+            is_cancel = -1;
+            groupid = FW_GetValue(1099, 申请人部门, cp);
+            groupid = groupid + "（已作废）";
+            SVret = FW_SetValue_w(1099, 申请人部门, cp, groupid);if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+
+            apply_date = FW_GetValue(1099, 申请日期, cp);
+            apply_date = apply_date + "（已作废）";
+            SVret = FW_SetValue_w(1099, 申请日期, cp, apply_date);if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+
+            apply_post = FW_GetValue(1099, 申请岗位, cp);
+            apply_post = apply_post + "（已作废）";
+            SVret = FW_SetValue_w(1099, 申请岗位, cp, apply_post);if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+
+            SVret = FW_SetValue_w(1099, 状态, cp, "未通过作废");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+            SVret = FW_SetValue_w(1099, UserName1, cp, "");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+            markPage = FW_GetValue(1099, 当前待处理标记Page, cp);
+            SVret = FW_SetValue_w(1235, 事件状态, markPage, "未通过作废");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+            return(GotoClient);
+        }else if(us != username1)
+        {
+            is_cancel = -2;
+            return(GotoClient);
+        }
+    }else if(status == "已通过")
+    {
+        username2 = FW_GetValue(1099, UserName2, cp);
+        username3 = FW_GetValue(1099, UserName3, cp);
+        username4 = FW_GetValue(1099, UserName4, cp);
+        if((us == username2)||(us == username3)||(us == username4))
+        {
+            is_cancel = -3;
+            groupid = FW_GetValue(1099, 申请人部门, cp);
+            groupid = groupid + "（已作废）";
+            SVret = FW_SetValue_w(1099, 申请人部门, cp, groupid);if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+
+            apply_date = FW_GetValue(1099, 申请日期, cp);
+            apply_date = apply_date + "（已作废）";
+            SVret = FW_SetValue_w(1099, 申请日期, cp, apply_date);if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+
+            apply_post = FW_GetValue(1099, 申请岗位, cp);
+            apply_post = apply_post + "（已作废）";
+            SVret = FW_SetValue_w(1099, 申请岗位, cp, apply_post);if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+
+            SVret = FW_SetValue_w(1099, 状态, cp, "已通过作废");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+            markPage = FW_GetValue(1099, 当前待处理标记Page, cp);
+            SVret = FW_SetValue_w(1235, 事件状态, markPage, "已通过作废");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+        }else
+        {
+            is_cancel = -4;
+        }
+        return(GotoClient);
+    }
+}
+CLIENT
+{
+    if(is_cancel == 1)
+    {
+        FW_Dialog1(此申请单已作废，请勿重复操作！);
+    }else if(is_cancel == -1)
+    {
+        SVret = FW_SetValue_w(1099, 状态, cp, "未通过作废");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+        SVret = FW_SetValue_w(1099, UserName1, cp, "");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+        FW_Dialog1("已将此人力需求申请成功作废！");
+    }else if(is_cancel == -2)
+    {
+        FW_Dialog1(您不是此申请单的申请人，未通过的申请单需使用申请人帐号进行作废！);
+    }else if(is_cancel == -3)
+    {
+        SVret = FW_SetValue_w(1099, 状态, cp, "已通过作废");if(SVret!=0){FW_Dialog1(58_1099人员需求申请申请表);return(0);}
+        FW_Dialog1("已将此人力需求申请成功作废！");
+    }else if(is_cancel == -4)
+    {
+        FW_Dialog1(此申请单已通过，如需作废请联系上级进行作废操作！);
+    }
+}
+SERVER
+{
+    st0_1157.FormID = 1157;
+    st0_1157.Record = 0;
+    return(st0_1157);
+}

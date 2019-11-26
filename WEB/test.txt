@@ -1,0 +1,18 @@
+// @
+// @Author: LRT
+// @Date: 2019-11-26 16:16:56
+// @LastEditTime: 2019-11-26 16:18:57
+// @LastEditors: LRT
+// @Description: 
+// @FilePath: \程序\WEB\test.txt
+// @
+VAR
+{
+    Struct0 st0;
+}
+SERVER
+{
+    st0.FormID = 1025;
+    st0.Record = 0;
+    return(st0);
+}

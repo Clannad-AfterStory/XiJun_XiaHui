@@ -1,0 +1,27 @@
+FIELD
+{
+    .1087.UserName;
+    .1087.用户ID;
+}
+VAR
+{
+    String standard_require, user_information, username, user_id;
+    int cp;
+}
+CLINET
+{
+    cp = CURRENT.Record;
+    username = FW_GetValue(1087, UserName, cp);
+    user_id = FW_GetValue(1087, 用户ID, cp);
+}
+SERVER
+{
+    standard_require = "UserName, UserID";
+    user_information = "username, user_id";
+    FW_SetValue_w(0, standard_require, 0, user_information);
+    return(GotoClient);
+}   
+CLINET
+{
+    FW_Dialog1(操作成功！);
+}

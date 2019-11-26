@@ -1,0 +1,65 @@
+FIELD
+{
+    .1183.UserName;
+    .1183.姓名;
+    .1183.现属部门;
+    .1183.现任岗位;
+    .1183.项目社区;
+    .1183.本人联系方式;
+
+    .1212.申请人姓名;
+    .1212.申请数量;
+    .1212.社区;
+    .1212.电话;
+    .1212.借用日期;
+    .1212.预计归还日期;
+    .1212.用途;
+    .1212.申请人备注;
+}
+VAR
+{
+    int current_page, record_page, position, SVret;
+    String current_us, current_name, community, post, phone, post_condition;
+    Struct2 st2_1183;
+}
+CLIENT
+{
+    FW_FormOpen(1183);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+    current_page = FW_GetCurrentRecNum();
+    st2_1183 = FW_FindRecords("1183, current_us@UserName", 1);
+    if(st2_1183.mError == 0)
+    {
+        record_page = st2_1183.RecordNoList.Get[0];
+        current_name = FW_GetValue(1183, 姓名, record_page);
+        phone = FW_GetValue(1183, 本人联系方式, record_page);
+        post = FW_GetValue(1183, 现任岗位, record_page);
+        post_condition = "社工";
+        position = post.Find(post_condition, 0);
+        if(position != -1)
+        {
+            community = FW_GetValue(1183, 项目社区, record_page);
+        }else if(post == "主管")
+        {
+            community = FW_GetValue(1183, 现属部门, record_page);
+        }else
+        {
+            community = "机构";
+        }
+    }
+    SVret = FW_SetValue_w(1212, 社区, current_page, community);if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+    SVret = FW_SetValue_w(1212, 申请人姓名, current_page, current_name);if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+    SVret = FW_SetValue_w(1212, 申请数量, current_page,"");if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+    SVret = FW_SetValue_w(1212, 电话, current_page, phone);if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+    SVret = FW_SetValue_w(1212, 借用日期, current_page, "");if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+    SVret = FW_SetValue_w(1212, 预计归还日期, current_page, "");if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+    SVret = FW_SetValue_w(1212, 用途, current_page,"");if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+    SVret = FW_SetValue_w(1212, 申请人备注,current_page,"");if(SVret!=0){FW_Dialog1(办公物品申请单-1212-赋值出现错误！);return(0);}
+}

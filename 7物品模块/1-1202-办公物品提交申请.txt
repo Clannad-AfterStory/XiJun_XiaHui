@@ -1,0 +1,143 @@
+FIELD
+{
+    .1202.社区;
+    .1202.申请人姓名;
+    .1202.申请数量;
+    .1202.用途;
+    .1202.申请人备注;
+    .1202.物品编号;
+    .1202.物品名称;
+    .1202.物品类别;
+    .1202.单位;
+    .1202.规格型号;
+    .1202.现有库存;
+
+    .1116.物品使用状态;
+    .1116.UserName;
+    .1116.领用状态;
+    .1116.申请日期;
+    .1116.申请人姓名;
+    .1116.物品编号;
+    .1116.申请数量;
+}
+VAR
+{
+    String community, applicant_name, applicant_note, use, applicant_us;
+    String item_number, item_name, item_category, unit, specification_model, apply_date, condition;
+    int cp, newPage, apply_number, existing_stock, is_continue, already_applied;
+    Struct2 st2_1116;
+    Struct0 st0_1201;
+}
+CLIENT
+{
+    cp = FW_GetCurrentRecNum();
+    item_category = FW_GetValue(1202, 物品类别, cp);
+    if(item_category == "固定物资")
+    {
+        FW_Dialog1(固定物资请到 “个人中心 → 固定物资申请” 中进行查看申请！);
+        return(0);
+    }else if(item_category == "历奇工具包")
+    {
+        FW_Dialog1(历奇工具包请到 “个人中心 → 历奇工具包申请” 中进行查看申请！);
+        return(0);
+    }
+
+    community = FW_GetValue(1202, 社区, cp);
+    if(community == "")
+    {
+        FW_Dialog1(请填写“社区”！);
+        return(0);
+    }
+
+    applicant_name = FW_GetValue(1202, 申请人姓名, cp);
+    if(applicant_name == "")
+    {
+        FW_Dialog1(请填写“姓名”！);
+        return(0);
+    }
+
+    existing_stock = FW_GetValue(1202, 现有库存, cp);
+    apply_number = FW_GetValue(1202, 申请数量, cp);
+    if(apply_number <= 0)
+    {
+        FW_Dialog1("“申请数量”需大于0！");
+        return(0);
+    }else if(apply_number > existing_stock)
+    {
+        FW_Dialog1(申请数量超出现有库存范围！);
+        return(0);
+    }
+
+    use = FW_GetValue(1202, 用途, cp);
+    if(use == "")
+    {
+        FW_Dialog1(请填写“用途”！);
+        return(0);
+    }
+
+    applicant_us = FW_GetUserID(2);
+    is_continue = FW_Dialog1(是否确认申请信息填写无误并继续进行提交？);
+    if(is_continue == 0)
+    {
+        return(0);
+    }
+    item_number = FW_GetValue(1202, 物品编号, cp);
+    applicant_note = FW_GetValue(1202, 申请人备注, cp);
+    item_name = FW_GetValue(1202, 物品名称, cp);
+    unit = FW_GetValue(1202, 单位, cp);
+    specification_model = FW_GetValue(1202, 规格型号, cp);
+    apply_date = FW_GetSysDate(0);
+    condition = "1116, apply_date@申请日期, item_number@物品编号, apply_number@申请数量, applicant_us@UserName";
+}
+SERVER
+{
+    st2_1116 = FW_FindRecords(condition, 1);
+    if(st2_1116.mError == 0)
+    {
+        already_applied = 1;
+        return(GotoClient);
+    }
+    newPage = FW_AddNewPage_w(1116);
+    FW_SetValue_w(1116, 物品编号, newPage, item_number);
+    FW_SetValue_w(1116, 申请数量, newPage, apply_number);
+    FW_SetValue_w(1116, 用途, newPage, use);
+    FW_SetValue_w(1116, UserName, newPage, applicant_us);
+    FW_SetValue_w(1116, 申请人备注, newPage, applicant_note);
+    FW_SetValue_w(1116, 物品名称, newPage, item_name);
+    FW_SetValue_w(1116, 物品类别, newPage, item_category);
+    FW_SetValue_w(1116, 单位, newPage, unit);
+    FW_SetValue_w(1116, 规格型号, newPage, specification_model);
+    FW_SetValue_w(1116, 领用状态, newPage, "待审核");
+    FW_SetValue_w(1116, 申请日期, newPage, apply_date);
+    FW_SetValue_w(1116, 申请类型, newPage, "领用");
+    FW_SetValue_w(1116, 物品使用状态, newPage, "领用待审核");
+    FW_SetValue_w(1116, 申请人姓名, newPage, applicant_name);
+    FW_SetValue_w(1116, 社区, newPage, community);
+
+    FW_SetValue_w(1202, 社区, cp, "");
+    FW_SetValue_w(1202, 申请人姓名, cp, "");
+    FW_SetValue_w(1202, 申请数量, cp, "");
+    FW_SetValue_w(1202, 用途, cp, "");
+    FW_SetValue_w(1202, 申请人备注, cp, "");
+    return(GotoClient);
+}
+CLIENT
+{
+    if(already_applied == 1)
+    {
+        FW_Dialog1(已提交过相同申请！);
+        return(0);
+    }
+    FW_SetValue_w(1202, 社区, cp, "");
+    FW_SetValue_w(1202, 申请人姓名, cp, "");
+    FW_SetValue_w(1202, 申请数量, cp, "");
+    FW_SetValue_w(1202, 用途, cp, "");
+    FW_SetValue_w(1202, 申请人备注, cp, "");
+    FW_Dialog1(领用申请提交成功!);
+}
+SERVER
+{
+    st0_1201.FormID = 1201;
+    st0_1201.Record = 0;
+    return(st0_1201);
+}

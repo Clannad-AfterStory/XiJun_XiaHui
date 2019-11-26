@@ -1,0 +1,48 @@
+FIELD
+{
+    .1192.Query员工工号;
+    .1192.Query姓名;
+    .1192.Query试用部门;
+
+    .1087.UserName;
+    .1087.GroupID;
+    .1087.POST;
+}
+VAR
+{
+    String current_us, post, groupid;
+    int rec;
+    Struct2 st2_1087;
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+}
+SERVER
+{
+    st2_1087 = FW_FindRecords("1087, current_us@UserName", 1);
+    rec = st2_1087.RecordNoList.Get[0];
+    post = FW_GetValue(1087, POST, rec);
+    if(post == "主管")
+    {
+        groupid = FW_GetValue(1087, GroupID, rec);
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    if(post == "主管")
+    {
+        groupid = groupid + "*";
+        FW_SetValue_w(1192, Query员工工号, 0, "****");
+        FW_SetValue_w(1192, Query姓名, 0, "****");
+        FW_SetValue_w(1192, Query试用部门, 0, groupid);
+        FW_RecordSort(1192, Query试用部门, 0);
+    }else
+    {
+        FW_SetValue_w(1192, Query员工工号, 0, current_us);
+        FW_SetValue_w(1192, Query姓名, 0, "****");
+        FW_SetValue_w(1192, Query试用部门, 0, "****");
+        FW_RecordSort(1192, Query员工工号, 0);
+    }
+}

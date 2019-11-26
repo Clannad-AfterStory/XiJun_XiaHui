@@ -26,7 +26,7 @@ SERVER
 CLIENT
 {
     if(error == 1){FW_Dialog1("在1087用户表中查找当前用户账号出错！");return(0);}
-    ret1 =  current_post.Find("项目工作员", 0);
+    ret1 = current_post.Find("项目工作员", 0);
     ret2 = current_post.Find("助老员", 0);
     if((ret1 != -1)||(ret2 != -1))
     {

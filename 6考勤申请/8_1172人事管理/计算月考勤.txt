@@ -1,0 +1,734 @@
+FIELD
+{
+    .1172.统计年份;
+    .1172.统计月份;
+    .1172.开始日期;
+    .1172.结束日期;
+
+    .1183.员工状态;
+    .1183.UserName;
+    .1183.姓名;
+    .1183.现属部门;
+    .1183.入职日期;
+    .1183.合同起始日;
+    .1183.现任岗位;
+
+    .1139.UserName1;
+    .1139.状态;
+    .1139.实际加班起始日期;
+    .1139.实际加班共计小时数;
+    .1139.考勤年月; 
+    .1139.人事导出月考勤日期; 
+
+    .1044.UserName1;
+    .1044.状态;
+    .1044.调休共计;
+    .1044.调休起始日期;
+    .1044.考勤年月;
+    .1044.人事导出月考勤日期;
+
+    .1138.UserName1;
+    .1138.状态;
+    .1138.请假起始日期;
+    .1138.请假共计;
+    .1138.假别;
+    .1138.考勤年月;
+    .1138.人事导出月考勤日期;
+
+    .1214.UserName;
+    .1214.姓名;
+    .1214.部门;
+    .1214.考勤年月;
+    .1214.开始日期;
+    .1214.截止日期;
+
+    .1214.已作废的加班单总数量;
+    .1214.加班单总数量;
+    .1214.加班总小时;
+    .1214.还未通过的加班单总数量;
+    .1214.还未通过的加班总小时;
+    .1214.已通过的加班单总数量;
+    .1214.已通过的加班总小时;
+    .1214.考勤导出时已通过的下月加班单总数量;
+    .1214.考勤导出时已通过的下月加班总小时;
+
+    .1214.已作废的调休单数量;
+    .1214.调休单总数量;
+    .1214.调休总小时;
+    .1214.已通过的调休单总数量;
+    .1214.已通过的调休总小时;
+    .1214.还未通过的调休单总数量;
+    .1214.还未通过的调休小时;
+    .1214.本月请假天数;
+    .1214.考勤导出时已申请的下月调休单总数量;
+    .1214.考勤导出时已申请的下月调休总小时;
+
+    .1214.其中事假小时;
+    .1214.其中病假小时;
+    .1214.请假天数临时存放;
+    .1214.本月透支调休时间;
+    .1214.应扣薪透支调休时间;
+
+    .1214.年假共计;
+    .1214.已休年假;
+    .1214.剩余年假;
+    .1214.事假天数;
+    .1214.病假天数;
+    .1214.请假信息;
+
+    .1214.本月剩余小时;
+    .1214.上月剩余小时;
+    .1214.考勤年月;
+
+    .1168.最高弹性调休时间;
+    .1168.弹性调休次数;
+    .1168.工作时长;
+
+    .1143.当前月份;
+    .1143.当前季度;
+    .1143.月度加班累计;
+    .1143.月请假累计;
+    .1143.月事假累计;
+    .1143.月病假累计;
+    .1143.月其他所有请假;
+    .1143.年度其他所有请假;
+    .1143.弹性调休剩余次数;
+    .1143.月调休可透支时间;
+    .1143.上月调休透支时间;
+    .1143.季度加班累计;
+    .1143.个人季度加班上限;
+    .1143.季度已调休累计;
+    .1143.可调休共计;
+    .1143.本季度可调休;
+    .1143.上季度剩余调休;
+    .1143.可休年假;
+    .1143.已休年假;
+    .1143.年假共计;
+
+    .1151.年度加班累计;
+
+    .1167.年度已调休累计;
+
+    .1144.月哺乳假;
+    .1144.月产假;
+    .1144.月婚假;
+    .1144.月丧假;
+    .1144.月照顾假;
+    .1144.月其他请假;
+    .1144.年度请假累计;
+    .1144.年度事假累计;
+    .1144.年度病假累计;
+    .1144.年度哺乳假;
+    .1144.年度产假;
+    .1144.年度婚假;
+    .1144.年度丧假;
+    .1144.年度照顾假;
+    .1144.年度其他请假;
+
+    .1235.事件状态;
+    .1235.处理人姓名;
+    .1235.处理人工号;
+    .1235.处理人职务;
+    .1235.处理人部门;
+    .1235.处理日期;
+    .1235.审批状态;
+    .1235.LinkToFormID;
+    .1235.LinkToFormPage;
+    .1235.提交人姓名;
+    .1235.提交人工号;
+    .1235.内容;
+    .1235.提交日期;
+
+    .1245.待办事项标记;
+    .1245.状态;
+    .1245.入职时间;
+    .1245.合同时间;
+
+    .1087.姓名;
+}
+VAR
+{
+    int i, ret, passed_num_total, still_apply_num_total, invalid_num_total;
+    int passed_rest_cmonth_num, still_apply_rest_cmonth_num, invalid_rest_cmonth_num;
+    StringList sl_find_overtime_rest_c_n_month_condition, leave_type_list, leave_days_list;
+    String condition, type, leave_days_s;
+    String employee_status, statistical_year, statistical_month, next_year_of_statistics;
+    String next_statistical_month, last_statistical_year, last_statistical_month, start_date;
+    String end_date, next_statistical_start_date, next_statistical_end_date, employee_us, find_employee_on_the_job;
+    String department, name, post, find_overtime_cmonth_all, find_overtime_cmonth_all;
+    String find_overtime_invalid_cmonth, find_overtime_nmonth;
+    String find_rest_cmonth_all, find_rest_nmonth_all, passed_status, apply_status;
+    String rest_next_month, find_leave_current_month, leave_information, annual_leave_information;
+    String personal_leave_information, sick_leave_information breastfeeding_leave_information;
+    String  marriage_leave_information, care_leave_information, maternity_leave_information;
+    String funeral_leave_information, other_leave_information, leave_type, statistical_date;
+    String last_statistical_date, find_is_statistics, quarter_last_month, submit_date;
+    String entry_date, contract_date, update_system_date_now, update_system_quarter_now, content;
+    Struct2 st2_employee_on_the_job, st2_find_apply, st2_passed_overtime_nmonth;
+    Struct2 st2_rest_current_month, st2_rest_next_month, st2_leave_current_month;
+    Struct2 st2_is_statistics, st2_remaining_hours_last_month;
+    int cp, is_continue, i_statistical_year, i_statistics_month, i_next_year, i_next_month;
+    int i_last_year, i_last_month, np_1214, rec_1143, index_page, overtime_nmonth_page;
+    int statistics_page_last_month, rest_cmonth_page, rest_page_next_month;
+    int leave_page_cmonth, already_statistic, employee_on_the_job_total, index_employee;
+    int apply_num_total, passed_overtime_nmonth_num, index_apply_form, index_type;
+    int rest_forms_cmonth_num, rest_forms_nmonth＿num, leave_form_cmonth_num, elasticity_times, np_1235;
+    double leave_days, apply_hours_total, still_apply_hours_total;
+    double passed_hours_total, passed_overtime_nmonth_hours, apply_hours;
+    double apply_overtime_nmonth_hours, apply_rest_cmonth_hours, rest_hours_cmonth_total;
+    double rest_hours_nmonth_total, rest_hours_passed_total_nmonth, rest_hours_nmonth;
+    double rest_hours_passed_nmonth, leave_days_c_apply, annual_leave_days_cmonth;
+    double sick_hours_total, sick_days_total, personal_hours_total, personal_days_total, breastfeeding_days_total;
+    double marriage_days_total, funeral_days_total, maternity_days_total, care_days_total, other_days_total;
+    double leave_days_cmonth_total, annual_leave_total, annual_leave_used, remaining_annual_leave;
+    double leave_accumulated_month, sick_accumulated_month, personal_accumulated_month;
+    double all_other_month_leave, ling, maximum_elastic_time, actual_remaining_rest;
+    double quarter_adjustable_c, last_quarter_adjustable, original_adjustable_nmonth;
+    double remaining_hours_lmonth, overdraft_last_month, work_hours_standard;
+    double overdraft_adjustment_total_lcmonth, overdraft_time_month, deducted_overdraft_time;
+    double breastfeeding_accumulated, maternity_accumulated, marriage_accumulative, funeral_accumulated;
+    double care_accumulation, other_accumulated, rest_total, overdrift_standard;
+}
+CLIENT
+{
+    cp = FW_GetCurrentRecNum();
+    statistical_year = FW_GetValue(1172, 统计年份, cp);
+    if(statistical_year == "")
+    {
+        FW_Dialog1(请填写"统计年份");
+        return(0);
+    }
+    statistical_month = FW_GetValue(1172, 统计月份, cp);
+    if(statistical_month == "")
+    {
+        FW_Dialog1(请填写"统计月份");
+        return(0);
+    }
+    start_date = FW_GetValue(1172, 开始日期, cp);
+    if(start_date == "")
+    {
+        FW_Dialog1(请填写开始日期！);
+        return(0);
+    }
+    end_date = FW_GetValue(1172, 结束日期, cp);
+    if(end_date == "")
+    {
+        FW_Dialog1(请填写结束日期！);
+        return(0);
+    }
+    is_continue = FW_Dialog1(即将开始计算月考勤，这可能会花费一些时间，请按“继续”并请耐心等待完成提示。);
+    if(is_continue == 0)
+    {
+        return(0);
+    }
+
+    //
+    statistical_date = statistical_year + statistical_month;
+    i_statistics_month = statistical_month.toIntege;
+    i_next_month = i_statistics_month + 1;
+    i_statistical_year = statistical_year.toIntege;
+    i_next_year = i_statistical_year;
+    if(i_next_month > 12)
+    {
+        i_next_month = 1;
+        i_next_year = i_statistical_year + 1;
+    }
+    next_statistical_month = i_next_month.toString;
+    next_year_of_statistics = i_next_year.toString;
+    next_statistical_start_date = next_year_of_statistics + "/" + next_statistical_month + "/01";
+    next_statistical_end_date = next_year_of_statistics + "/" + next_statistical_month + "/31";
+    i_last_month = i_statistics_month - 1;
+    i_last_year = i_statistical_year;
+    if(i_last_month < 1)
+    {
+        i_last_month = 12;
+        i_last_year = i_statistical_year - 1;
+    }
+    last_statistical_month = i_last_month.toString;
+    last_statistical_year = i_last_year.toString;
+    last_statistical_date = last_statistical_year + "年" + last_statistical_month + "月";
+    employee_status = "在职";
+    passed_status = "已通过";
+}
+SERVER
+{
+    already_statistic = 0;
+    ling = 0.00;
+
+    //排除重复计算月考勤
+    find_is_statistics = "1214, statistical_date@考勤年月";
+    st2_is_statistics = FW_FindRecords(find_is_statistics, 1);
+    if(st2_is_statistics.mError == 0)
+    {
+        already_statistic = 1;
+        return(GotoClient);
+    }
+
+    find_employee_on_the_job = "1183, employee_status@员工状态";
+    st2_employee_on_the_job = FW_FindRecords(find_employee_on_the_job, 0);
+    employee_on_the_job_total = st2_employee_on_the_job.count;
+
+    maximum_elastic_time = FW_GetValue(1168, 最高弹性调休时间, 0);
+    work_hours_standard = FW_GetValue(1168, 工作时长, 0);
+    for(index_employee=0; index_employee<employee_on_the_job_total; index_employee++)
+    {
+        rec_1143 = st2_employee_on_the_job.RecordNoList.Get[index_employee];
+        employee_us = FW_GetValue(1183, UserName, rec_1143);
+        department = FW_GetValue(1183, 现属部门, rec_1143);
+        name = FW_GetValue(1183, 姓名, rec_1143);
+        post = FW_GetValue(1183, 现任岗位, rec_1143);
+        elasticity_times = FW_GetValue(1168, 弹性调休次数, 0);
+
+        np_1214 = FW_AddNewPage_w(1214);
+        FW_SetValue_w(1214, UserName, np_1214, employee_us);
+        FW_SetValue_w(1214, 姓名, np_1214, name);
+        FW_SetValue_w(1214, 部门, np_1214, department);
+        FW_SetValue_w(1214, 考勤年月, np_1214, statistical_date);
+        FW_SetValue_w(1214, 开始日期, np_1214, start_date);
+        FW_SetValue_w(1214, 截止日期, np_1214, end_date);
+
+        //计算当月已通过和未通过的加班单数量和总加班小时、已作废的加班单总数量，下月可能提前通过的加班单和下月提前申请的调休单，更新到考勤单1214（未通过的申请在当月考勤导出后才通过的情况直接在各申请单1139、1044、1138中最后通过时进行再考虑计算到考勤单1214中）
+        find_overtime_cmonth_all = "1139, employee_us@UserName1, RANGE(start_date-end_date)@实际加班起始日期";
+        find_overtime_nmonth="1139, employee_us@UserName1, RANGE(next_statistical_start_date-next_statistical_end_date)@实际加班起始日期";
+        find_rest_cmonth_all = "1044, employee_us@UserName1, RANGE(start_date-end_date)@调休起始日期";
+        find_rest_nmonth_all = "1044, employee_us@UserName1, RANGE(next_statistical_start_date-next_statistical_end_date)@调休起始日期";
+        sl_find_overtime_rest_c_n_month_condition = [find_overtime_cmonth_all, find_overtime_nmonth, find_rest_cmonth_all, find_rest_nmonth_all];
+        for(i=0; i<4; i++)
+        {
+            condition = sl_find_overtime_rest_c_n_month_condition.Get[i];
+            st2_find_apply = FW_FindRecords(condition, 0);
+            apply_num_total = st2_find_apply.count;
+            apply_hours_total = 0.00;
+            passed_num_total = 0;
+            passed_hours_total = 0.00;
+            still_apply_num_total = 0;
+            still_apply_hours_total = 0.00;
+            invalid_num_total = 0;
+            for(index_apply_form=0; index_apply_form<apply_num_total; index_apply_form++)
+            {
+                index_page = st2_find_apply.RecordNoList.Get[index_apply_form];
+                if((i == 0)||(i == 1))
+                {
+                    FW_SetValue_w(1139, 人事导出月考勤日期, index_page, statistical_date);
+                    apply_status = FW_GetValue(1139, 状态, index_page);
+                    ret = apply_status.Find("作废", 0);
+                    if(ret != -1)
+                    {
+                        invalid_num_total++;
+                        continue;
+                    }
+                    apply_hours = FW_GetValue(1139, 实际加班共计小时数, index_page);
+                }else
+                {
+                    FW_SetValue_w(1044, 人事导出月考勤日期, index_page, statistical_date);
+                    apply_status = FW_GetValue(1044, 状态, index_page);
+                    ret = apply_status.Find("作废", 0);
+                    if(ret != -1)
+                    {
+                        invalid_num_total++;
+                        continue;
+                    }
+                    apply_hours = FW_GetValue(1044, 调休共计, index_page);
+                }
+                apply_hours_total = apply_hours_total + apply_hours;
+                ret = apply_status.Find("已通过", 0);
+                if(ret != -1)
+                {
+                    passed_num_total++;
+                    passed_hours_total = passed_hours_total + apply_hours;
+                    continue;
+                }
+                still_apply_num_total++;
+                still_apply_hours_total = still_apply_hours_total + apply_hours;
+                if((i == 3)&&(apply_hours < maximum_elastic_time))
+                {
+                    elasticity_times = elasticity_times - 1;
+                }
+            }
+            if(i == 0)
+            {
+                FW_SetValue_w(1214, 已作废的加班单总数量, np_1214, invalid_num_total);
+                apply_num_total = apply_num_total - invalid_num_total;
+                FW_SetValue_w(1214, 加班单总数量, np_1214, apply_num_total);
+                FW_SetValue_w(1214, 加班单总小时, np_1214, apply_hours_total);
+                FW_SetValue_w(1214, 已通过的加班单总数量, np_1214, passed_num_total);
+                FW_SetValue_w(1214, 已通过的加班单总小时, np_1214, passed_hours_total);
+                FW_SetValue_w(1214, 还未通过的加班单总数量, np_1214, still_apply_num_total);
+                FW_SetValue_w(1214, 还未通过的加班单总小时, np_1214, still_apply_hours_total);
+            }else if(i == 1)
+            {
+                FW_SetValue_w(1214, 考勤导出时已通过的下月加班单总数量, rec_1143, passed_num_total);
+                FW_SetValue_w(1214, 考勤导出时已通过的下月加班单总小时, rec_1143, passed_hours_total);
+                FW_SetValue_w(1143, 月度加班累计, rec_1143, passed_hours_total);
+
+            }else if(i == 2)
+            {
+                FW_SetValue_w(1214, 已作废的调休单数量, np_1214, invalid_num_total);
+                apply_num_total = apply_num_total - invalid_num_total;
+                FW_SetValue_w(1214, 调休单总数量, np_1214, apply_num_total);
+                FW_SetValue_w(1214, 调休单总小时, np_1214, apply_hours_total);
+                FW_SetValue_w(1214, 已通过的调休单总数量, np_1214, passed_num_total);
+                FW_SetValue_w(1214, 已通过的调休单总小时, np_1214, passed_hours_total);
+                FW_SetValue_w(1214, 还未通过的调休单总数量, np_1214, still_apply_num_total);
+                FW_SetValue_w(1214, 还未通过的调休单总小时, np_1214, still_apply_hours_total);
+            }else
+            {
+                if(elasticity_times < 0)
+                {
+                    elasticity_times = 0;
+                }
+                apply_num_total = apply_num_total - invalid_num_total;
+                FW_SetValue_w(1214, 考勤导出时已申请的下月调休单总数量, rec_1143, apply_num_total);
+                FW_SetValue_w(1214, 考勤导出时已申请的下月调休单总小时, rec_1143, apply_hours_total);
+                FW_SetValue_w(1143, 弹性调休剩余次数, rec_1143, elasticity_times);
+            }
+        }
+
+        //计算当月请假并更新到考勤确认单
+        leave_days_cmonth_total = 0.00;
+        passed_num_total = 0;
+        passed_hours_total = 0.00;
+        still_apply_num_total = 0;
+        still_apply_hours_total = 0.00;
+        annual_leave_days_cmonth = 0.00;
+        sick_hours_total = 0.00;
+        sick_days_total = 0.00;
+        personal_hours_total = 0.00;
+        personal_days_total = 0.00;
+        breastfeeding_days_total = 0.00;
+        maternity_days_total = 0.00;
+        marriage_days_total = 0.00;
+        funeral_days_total = 0.00;
+        care_days_total = 0.00;
+        other_days_total = 0.00;
+        leave_information = "";
+        leave_type_list = ["年假", "病假", "事假", "哺乳假", "产假", "婚假", "丧假", "照顾假", "其他"];
+        leave_days_list = [annual_leave_days_cmonth, sick_hours_total, personal_hours_total, breastfeeding_days_total, maternity_days_total, marriage_days_total, funeral_days_total, care_days_total, other_days_total];
+        find_leave_current_month = "1138, employee_us@UserName1, RANGE(start_date-end_date)@请假起始日期";
+        st2_leave_current_month = FW_FindRecords(find_leave_current_month, 0);
+        leave_form_cmonth_num = st2_leave_current_month.count;
+        for(index_apply_form=0; index_apply_form<leave_form_cmonth_num; index_apply_form++)
+        {
+            leave_page_cmonth = st2_leave_current_month.RecordNoList.Get[index_apply_form];
+            FW_SetValue_w(1138, 人事导出月考勤日期, leave_page_cmonth, statistical_date);
+            apply_status = FW_GetValue(1138, 状态, index_page);
+            ret = apply_status.Find("作废", 0);
+            if(ret != -1)
+            {
+                invalid_num_total++;
+                continue;
+            }
+            leave_days_c_apply = FW_GetValue(1138, TotalLeave, leave_page_cmonth);
+            leave_type = FW_GetValue(1138, 假别, leave_page_cmonth);
+            for(index_type=0; index_type<9; index_type++)
+            {
+                type = leave_type_list.Get[index_type];
+                if(leave_type == type)
+                {
+                    leave_days = leave_days_list.Get[index_type];
+                    if((type == "事假")||(type == "病假"))
+                    {
+                        leave_days_c_apply = leave_days_c_apply/work_hours_standard;
+                    }
+                    leave_days = leave_days + leave_days_c_apply;
+                    leave_days_list.Set[index_type, leave_days];
+                    ret = apply_status.Find("已通过", 0);
+                    if(ret != -1)
+                    {
+                        passed_num_total++;
+                        passed_hours_total = passed_hours_total + leave_days_c_apply;
+                        break;
+                    }
+                    still_apply_num_total++;
+                    still_apply_hours_total = still_apply_hours_total + leave_days_c_apply;
+                    break;
+                }
+            }
+        }
+        for(index_type=0; index_type<9; index_type++)
+        {
+            leave_days = leave_days_list.Get[index_type];
+            if(leave_days > 0)
+            {
+                type = leave_type_list.Get[index_type];
+                leave_days_s = leave_days.toString;
+                leave_information = leave_information + type + ":" + leave_days_s + "天";
+                leave_days_cmonth_total = leave_days_cmonth_total + leave_days;
+            }
+        }
+        FW_SetValue_w(1214, 已作废的请假单总数量, np_1214, invalid_num_total);
+        leave_form_cmonth_num = leave_form_cmonth_num - invalid_num_total;
+        FW_SetValue_w(1214, 请假单总数量, np_1214, leave_form_cmonth_num);
+        FW_SetValue_w(1214, 已通过的请假单总数量, np_1214, passed_num_total);
+        FW_SetValue_w(1214, 已通过的请假单总天数, np_1214, passed_hours_total);
+        FW_SetValue_w(1214, 还未通过的请假单总数量, np_1214, still_apply_num_total);
+        FW_SetValue_w(1214, 还未通过的请假单总天数, np_1214, still_apply_hours_total);
+        if(leave_days_cmonth_total > 0)
+        {
+            FW_SetValue_w(1214, 本月请假总天数, np_1214, leave_days_cmonth_total);
+            FW_SetValue_w(1214, 请假天数细分, np_1214, leave_information);
+        }
+
+        //上月调休剩余小时
+        remaining_hours_lmonth = ling;
+        st2_remaining_hours_last_month = FW_FindRecords("1214, last_statistical_date@考勤年月, employee_us@UserName", 1);
+        if(st2_remaining_hours_last_month.mError == 0)
+        {
+            statistics_page_last_month = st2_remaining_hours_last_month.RecordNoList.Get[0];
+            remaining_hours_lmonth = FW_GetValue(1214, 本月剩余小时, statistics_page_last_month);
+            FW_SetValue_w(1214, 上月剩余小时, np_1214, remaining_hours_lmonth);
+        }
+        if(remaining_hours_lmonth == ling)
+        {
+            FW_SetValue_w(1214, 上月剩余小时, np_1214, "");
+        }
+
+        //原来下月剩余可调休小时
+        original_adjustable_nmonth = remaining_hours_lmonth + passed_hours_total - rest_hours_cmonth_total;
+        FW_SetValue_w(1214, 本月剩余小时, np_1214, original_adjustable_nmonth);
+        if(original_adjustable_nmonth == ling)
+        {
+            FW_SetValue_w(1214, 本月剩余小时, np_1214, "");
+        }
+
+        //月调休可能包含本月和下月
+        actual_remaining_rest = FW_GetValue(1143, 可调休共计, rec_1143);
+        overdraft_time_month = FW_GetValue(1143, 月调休可透支时间, rec_1143);
+        overdraft_last_month = FW_GetValue(1143, 上月调休透支时间, rec_1143);
+        overdraft_adjustment_total_lcmonth = ling;
+        if(original_adjustable_nmonth < ling)
+        {
+            //总透支可能包含上月和本月的透支
+            overdraft_adjustment_total_lcmonth = 100 - original_adjustable_nmonth - 100;
+            //上月透支未补完直接算到扣薪中，并在可调休共计中恢复相应时间
+            if(overdraft_last_month > ling)
+            {
+                actual_remaining_rest = actual_remaining_rest + overdraft_last_month;
+                overdraft_adjustment_total_lcmonth = overdraft_adjustment_total_lcmonth - overdraft_last_month;
+                if(overdraft_adjustment_total_lcmonth < 0)
+                {
+                    overdraft_adjustment_total_lcmonth = 0;
+                }
+            }
+            overdraft_time_month = overdraft_time_month + overdraft_adjustment_total_lcmonth;
+            overdrift_standard = 7.50;
+            if(overdraft_time_month > overdrift_standard)
+            {
+                overdraft_time_month = overdrift_standard;
+            }
+        }
+        deducted_overdraft_time = overdraft_last_month;
+        if(deducted_overdraft_time < ling)
+        {
+            deducted_overdraft_time = 0.00;
+        }
+        FW_SetValue_w(1214, 应扣薪透支调休时间, np_1214, deducted_overdraft_time);
+        if(deducted_overdraft_time == 0.00)
+        {
+            FW_SetValue_w(1214, 应扣薪透支调休时间, np_1214, "");
+        }
+        FW_SetValue_w(1143, 月调休可透支时间, rec_1143, overdraft_time_month);
+        FW_SetValue_w(1143, 上月调休透支时间, rec_1143, overdraft_adjustment_total_lcmonth);
+
+        FW_SetValue_w(1214, 本月透支调休时间, np_1214, overdraft_adjustment_total_lcmonth);
+        if(overdraft_adjustment_total_lcmonth == 0.00)
+        {
+            FW_SetValue_w(1214, 本月透支调休时间, np_1214, "");
+        }
+
+        FW_SetValue_w(1143, 可调休共计, rec_1143, actual_remaining_rest);
+        FW_SetValue_w(1143, 本季度可调休, rec_1143, actual_remaining_rest);
+
+        //取得年假数值更新到考勤确认单
+        annual_leave_total = FW_GetValue(1143, 年假共计, rec_1143);
+        FW_SetValue_w(1214, 年假共计, np_1214, annual_leave_total);
+        if(annual_leave_total == 0)
+        {
+            FW_SetValue_w(1214, 年假共计, np_1214, "");
+        }
+        annual_leave_used = FW_GetValue(1143, 已休年假, rec_1143);
+        FW_SetValue_w(1214, 已休年假, np_1214, annual_leave_used);
+        if(annual_leave_used == 0)
+        {
+            FW_SetValue_w(1214, 已休年假, np_1214, "");
+        }
+        remaining_annual_leave = FW_GetValue(1143, 可休年假, rec_1143);
+        FW_SetValue_w(1214, 剩余年假, np_1214, remaining_annual_leave);
+        if(remaining_annual_leave == 0)
+        {
+            FW_SetValue_w(1214, 剩余年假, np_1214, "");
+        }
+
+        //扣掉本月时间，更新下月请假数据
+        leave_accumulated_month = FW_GetValue(1143, 月请假累计, rec_1143);
+        sick_accumulated_month = FW_GetValue(1143, 月病假累计, rec_1143);
+        personal_accumulated_month = FW_GetValue(1143, 月事假累计, rec_1143);
+
+        breastfeeding_accumulated = FW_GetValue(1144, 月哺乳假, rec_1143);
+        maternity_accumulated = FW_GetValue(1144, 月产假, rec_1143);
+        marriage_accumulative = FW_GetValue(1144, 月婚假, rec_1143);
+        funeral_accumulated = FW_GetValue(1144, 月丧假, rec_1143);
+        care_accumulation = FW_GetValue(1144, 月照顾假, rec_1143);
+        other_accumulated = FW_GetValue(1144, 月其他请假, rec_1143);
+
+        leave_accumulated_month = leave_accumulated_month - leave_days_cmonth_total;
+        if(leave_accumulated_month < ling)
+        {
+            leave_accumulated_month = 0.00;
+        }
+        FW_SetValue_w(1143, 月请假累计, rec_1143, leave_accumulated_month);
+
+        sick_accumulated_month = sick_accumulated_month - sick_hours_total;
+        if(sick_accumulated_month < ling)
+        {
+            sick_accumulated_month = 0.00;
+        }
+        FW_SetValue_w(1143, 月病假累计, rec_1143, sick_accumulated_month);
+
+        personal_accumulated_month = personal_accumulated_month - personal_hours_total;
+        if(personal_accumulated_month < ling)
+        {
+            personal_accumulated_month = 0.00;
+        }
+        FW_SetValue_w(1143, 月事假累计, rec_1143, personal_accumulated_month);
+
+        all_other_month_leave = leave_accumulated_month - annual_leave_days_cmonth - personal_days_total - sick_days_total;
+        if(all_other_month_leave < ling)
+        {
+            all_other_month_leave = 0.00;
+        }
+        FW_SetValue_w(1143, 月其他所有请假, rec_1143, all_other_month_leave);
+
+        breastfeeding_accumulated = breastfeeding_accumulated - breastfeeding_days_total;
+        if(breastfeeding_accumulated < ling)
+        {
+            breastfeeding_accumulated = 0.00;
+        }
+        FW_SetValue_w(1144, 月哺乳假, rec_1143, breastfeeding_accumulated);
+
+        maternity_accumulated = maternity_accumulated - maternity_days_total;
+        if(maternity_accumulated < ling)
+        {
+            maternity_accumulated = 0.00;
+        }
+        FW_SetValue_w(1144, 月产假, rec_1143, maternity_accumulated);
+
+        marriage_accumulative = marriage_accumulative - marriage_days_total;
+        if(marriage_accumulative < ling)
+        {
+            marriage_accumulative = 0.00;
+        }
+        FW_SetValue_w(1144, 月婚假, rec_1143, marriage_accumulative);
+
+        funeral_accumulated = funeral_accumulated - funeral_days_total;
+        if(funeral_accumulated < ling)
+        {
+            funeral_accumulated = 0.00;
+        }
+        FW_SetValue_w(1144, 月丧假, rec_1143, funeral_accumulated);
+
+        care_accumulation = care_accumulation - care_days_total;
+        if(care_accumulation < ling)
+        {
+            care_accumulation = 0.00;
+        }
+        FW_SetValue_w(1144, 月照顾假, rec_1143, care_accumulation);
+
+        other_accumulated = other_accumulated - other_days_total;
+        if(other_accumulated < ling)
+        {
+            other_accumulated = 0.00;
+        }
+        FW_SetValue_w(1144, 月其他请假, rec_1143, other_accumulated);
+
+//填写当月考勤待确认信息
+        entry_date = FW_GetValue(1183, 入职日期, rec_1143);
+        contract_date = FW_GetValue(1183, 合同起始日, rec_1143);
+        FW_SetValue_w(1245, 入职时间, np_1214, entry_date);
+        FW_SetValue_w(1245, 合同时间, np_1214, contract_date);
+        FW_SetValue_w(1245, 状态, np_1214, "已通过");
+        update_system_date_now = next_year_of_statistics + "年" + next_statistical_month + "月";
+        FW_SetValue_w(1143, 当前月份, rec_1143, update_system_date_now);
+        quarter_last_month = statistical_date.Mid(5);
+
+//季度数据更新
+        if((quarter_last_month == "3月")||(quarter_last_month == "6月")||(quarter_last_month == "9月")||(quarter_last_month == "12月"))
+        {
+            quarter_adjustable_c = FW_GetValue(1143, 本季度可调休, rec_1143);
+            if(quarter_adjustable_c > passed_overtime_nmonth_hours)
+            {
+                last_quarter_adjustable = FW_GetValue(1143, 上季度剩余调休, rec_1143);
+                last_quarter_adjustable = quarter_adjustable_c - passed_overtime_nmonth_hours + last_quarter_adjustable;
+                FW_SetValue_w(1143, 上季度剩余调休, rec_1143, last_quarter_adjustable);
+                FW_SetValue_w(1143, 本季度可调休, rec_1143, passed_overtime_nmonth_hours);
+            } 
+            if(i_next_month <= 3)
+            {
+                update_system_quarter_now = next_year_of_statistics + "年" + "第一季度";
+            }else if(i_next_month <= 6)
+            {
+                update_system_quarter_now = next_year_of_statistics + "年" + "第二季度";
+            }else if(i_next_month <= 9)
+            {
+                update_system_quarter_now = next_year_of_statistics + "年" + "第三季度";
+            }else if(i_next_month <= 12)
+            {
+                update_system_quarter_now = next_year_of_statistics + "年" + "第四季度";
+            }
+            FW_SetValue_w(1143, 当前季度, rec_1143, update_system_quarter_now);
+            FW_SetValue_w(1143, 季度加班累计, rec_1143, passed_overtime_nmonth_hours);
+            FW_SetValue_w(1143, 季度已调休累计, rec_1143, rest_hours_passed_total_nmonth);
+
+            //年度数据更新
+            if(quarter_last_month == "12月")
+            {
+                FW_SetValue_w(1151, 年度加班累计, rec_1143, passed_overtime_nmonth_hours);
+
+                FW_SetValue_w(1167, 年度已调休累计, rec_1143, rest_hours_passed_total_nmonth);
+
+                FW_SetValue_w(1144, 年度请假累计, rec_1143, leave_accumulated_month);
+
+                FW_SetValue_w(1143, 年度其他所有请假, rec_1143, all_other_month_leave);
+
+                FW_SetValue_w(1144, 年度病假累计, rec_1143, sick_accumulated_month);
+                FW_SetValue_w(1144, 年度事假累计, rec_1143, personal_accumulated_month);
+                FW_SetValue_w(1144, 年度哺乳假, rec_1143, breastfeeding_accumulated);
+                FW_SetValue_w(1144, 年度产假, rec_1143, maternity_accumulated);
+                FW_SetValue_w(1144, 年度婚假, rec_1143, marriage_accumulative);
+                FW_SetValue_w(1144, 年度丧假, rec_1143, funeral_accumulated);
+                FW_SetValue_w(1144, 年度照顾假, rec_1143, care_accumulation);
+                FW_SetValue_w(1144, 年度其他请假, rec_1143, other_accumulated);
+            }
+        }
+
+//创建代办事项
+        np_1235 = FW_AddNewPage_w(1235);
+        submit_date = FW_GetSysDate(0);
+        FW_SetValue_w(1245, 待办事项标记, np_1214, np_1235);
+
+        FW_SetValue_w(1235, 事件状态, np_1235, "待处理");
+        FW_SetValue_w(1235, 处理人姓名, np_1235, name);
+        FW_SetValue_w(1235, 处理人工号, np_1235, employee_us);
+        FW_SetValue_w(1235, 处理人职务, np_1235, post);
+        FW_SetValue_w(1235, 处理人部门, np_1235, department);
+        FW_SetValue_w(1235, 处理日期, np_1235);
+        FW_SetValue_w(1235, 审批状态, np_1235, "待本人核对确认");
+        FW_SetValue_w(1235, LinkToFormID, np_1235, 1245);
+        FW_SetValue_w(1235, LinkToFormPage, np_1235, np_1214);
+        FW_SetValue_w(1235, 提交人姓名, np_1235, "");
+        FW_SetValue_w(1235, 提交人工号, np_1235, "");
+        content = statistical_date + "考勤单";
+        FW_SetValue_w(1235, 内容, np_1235, content);
+        FW_SetValue_w(1235, 提交日期, np_1235, submit_date);
+    }
+    return(GotoClient);
+} 
+CLIENT
+{
+    if(already_statistic == 1)
+    {
+        FW_Dialog1(该月份的考勤已经计算过！);
+        return(0);
+    }
+    FW_Dialog1(系统自动统计完成);
+}

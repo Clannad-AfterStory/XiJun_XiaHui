@@ -1,0 +1,58 @@
+FIELD
+{
+    .1250.Query部门;
+    .1250.Query员工状态;
+    .1250.Query归属范围;
+    .1087.UserName;
+    .1087.GroupID;
+    .1087.归属范围;
+}
+VAR
+{
+    int i, cp, is_supervisor, rp;
+    String  us, submitternumber, groupID, scope;
+    Struct2 st2_1087;
+    Struct0 st0_1250;
+}
+CLIENT
+{
+    cp = FW_GetCurrentRecNum();
+    us = FW_GetUserID(2);
+    st2_1087 = FW_FindRecords("1087, us@UserName", 1);
+    rp = st2_1087.RecordNoList.Get[0];
+}
+SERVER
+{
+    groupID = FW_GetValue(1087, GroupID, rp);
+    if(groupID != "")
+    {
+        is_supervisor = 1;
+    }else
+    {
+        scope = FW_GetValue(1087, 归属范围, rp);
+        if(scope != "")
+        {
+            is_supervisor = 0;
+        }else
+        {
+            is_supervisor = -1;
+        }
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    if(is_supervisor == 1)
+    {
+        groupID = groupID + "*";
+        FW_SetValue_w(1250, Query部门, cp, groupID);
+        st0_1250 = FW_RecordSort(1250, Query部门, Query员工状态, 0);
+    }else if(is_supervisor == 2)
+    {
+        FW_SetValue_w(1250, Query归属范围, cp, scope);
+        st0_1250 = FW_RecordSort(1250, Query归属范围, Query员工状态, 0);
+    }else
+    {
+        st0_1250 = FW_RecordSort(1250, Query员工状态, 0);
+    }
+}

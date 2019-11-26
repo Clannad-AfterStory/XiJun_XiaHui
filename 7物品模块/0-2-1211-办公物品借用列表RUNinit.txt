@@ -1,0 +1,21 @@
+FIELD
+{
+    .1211.Query物品类别;
+    .1211.Query状态;
+    .1211.Query物品名称;
+}
+VAR
+{
+    Struct0 st0_1201;
+}
+CLIENT
+{
+    FW_SetValue_w(1211, Query物品类别 ,0, "固定物资");
+    FW_SetValue_w(1211, Query状态, 0, "有库存");
+    FW_SetValue_w(1211, Query物品名称, 0, "****");
+    st0_1201 = FW_RecordSort(1211, Query物品类别, Query状态, 0);
+    if(st0_1201.mError != 0)
+    {
+        FW_Dialog1(排序失败！);
+    }
+}

@@ -1,36 +1,42 @@
 FIELD
 {
     .1280.记录人员姓名;
+    .1280.UserName;
 
     .1087.UserName;
     .1087.姓名;
 }
 VAR
 {
-    int cp, rec, targer_id;
-    String current_us, current_name, recorder;
+    int cp, opened, rec, targer_id, ret;
+    String current_us, current_name, current_post, recorder, submit_us, change_recorder;
     Struct2 st2_1087;
-    Struct0 st0_1270;
+    Struct0 st0_1280, st0_1270;
 }
 CLIENT
 {
-    cp = FW_FormOpen(1087);
+    cp = CURRENT.Record;
+    submit_us = FW_GetValue(1280, UserName, cp);
+    recorder = FW_GetValue(1280, 记录人员姓名, cp);
+    current_us = FW_GetUserID(2);
+    change_recorder = "否";
+    opened = FW_FormOpen(1087);
 }
 SERVER
 {
     return(GotoClient);
 }
 CLIENT
-{
-    if((cp != 0)&&(cp != 1))
+{ 
+    if(opened == 0)
     {
-        FW_Dialog1("打开用户表1087时失败！");
+        Goto(0);
+    }else if(opened == -1))
+    {
+        FW_Dialog1("该用户在用户表1087无读写权限，请联系管理员处理！");
         return(0)
     }
-    cp = CURRENT.Record;
-    recorder = FW_GetValue(1280, 记录人员姓名, cp);
-    current_us = FW_GetUserID(2);
-    if(current_us != recorder)
+    if((current_us != recorder)&&(current_us != submit_us))
     {
         st2_1087 = FW_FindRecords("1087, current_us@UserName", 1);
         if(st2_1087.mError == 0)
@@ -39,25 +45,70 @@ CLIENT
             current_name = FW_GetValue(1087, 姓名, rec);
             if(current_name == recorder)
             {
-                targer_id = 1270;
+                st0_1280.message = "是否需要更换原记录人员？如需更换直接填写 “新记录人员姓名”，无需更换填写 “否”。";
+                st0_1280.sVALUE = change_recorder;
+                ret = FW_Dialog1(st0_1280);
+                if(ret == 0){return(0);}
+                change_recorder = st0_1280.sVALUE;
+                if(change_recorder == "否")
+                {
+                    targer_id = 1270;
+                }else
+                {
+                    st2_1087 = FW_FindRecords("1087, change_recorder@姓名", 1);
+                    if(st2_1087.mError == 0)
+                    {
+                        FW_SetValue_w(1280, 记录人员姓名, cp, change_recorder);
+                    }else
+                    {
+                        FW_Dialog1("系统中暂未找到此员工姓名，请确认是否输入正确或联系相关人员添加此员工！");
+                        Goto(1);
+                    }
+                }
             }else
             {
-                FW_Dialog1("只有记录人员才能进行记录！");
+                FW_Dialog1("只有会议记录人员和会议建立者才能进行记录或记录人员更改！");
                 return(0);
             }
+        }else
+        {
+            FW_Dialog1("系统用户表1087中暂未找到您的账号信息，请联系相关人员处理！");
+            return(0);
         }
     }else
     {
-        targer_id = 1270;
+        st0_1280.message = "是否需要更换原记录人员？如需更换直接填写 “新记录人员姓名”，无需更换填写 “否”。";
+        st0_1280.sVALUE = change_recorder;
+        ret = FW_Dialog1(st0_1280);
+        if(ret == 0){return(0);}
+        change_recorder = st0_1280.sVALUE;
+        if(change_recorder == "否")
+        {
+            targer_id = 1270;
+        }else
+        {
+            st2_1087 = FW_FindRecords("1087, change_recorder@姓名", 1);
+            if(st2_1087.mError == 0)
+            {
+                FW_SetValue_w(1280, 记录人员姓名, cp, change_recorder);
+                FW_Dialog1("记录人员修改成功！");
+            }else
+            {
+                FW_Dialog1("系统中暂未找到此员工姓名，请确认是否输入正确或联系相关人员添加此员工！");
+                Goto(1);
+            }
+        }
     }
-    st0_1270 = FW_GotoFormPage(targer_id, cp);
 }
 SERVER
 {
-    return(GotoClient);
-}
-CLIENT{}
-SERVER
-{
-    return(st0_1270);
+    if(change_recorder == "否")
+    {
+        st0_1270 = FW_GotoFormPage(targer_id, cp);
+        return(st0_1270);
+    }else
+    {
+        FW_SetValue_w(1280, 记录人员姓名, cp, change_recorder);
+        FW_Dialog1("记录人员修改成功！");
+    }
 }

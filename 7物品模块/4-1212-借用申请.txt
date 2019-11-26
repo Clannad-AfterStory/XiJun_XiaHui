@@ -1,0 +1,166 @@
+FIELD
+{
+    .1212.申请数量;
+    .1212.用途;
+    .1212.申请人备注;
+    .1212.物品编号;
+    .1212.物品名称;
+    .1212.物品类别;
+    .1212.单位;
+    .1212.规格型号;
+    .1212.现有库存;
+    .1212.预计归还日期;
+    .1212.借用日期;
+    .1212.申请人姓名;
+    .1212.社区;
+    .1212.电话;
+    .1212.物品使用历史列表;
+
+    .1116.物品使用状态;
+    .1116.UserName;
+    .1116.领用状态;
+    .1116.申请日期;
+    .1116.申请人姓名;
+    .1116.物品编号;
+    .1116.申请数量;
+}
+VAR
+{
+    String communiity, phone, borrow_date, expected_return_date, use;
+    String applicant_us, item_number, applicant_note, item_name, item_category;
+    String unit, specification_model, apply_date, condition, applicant_name;
+    int currentPage, newPage, apply_number, existing_stock, is_continue, rec, already_applied;
+    Struct2 st2;
+    Struct0 st01;
+}
+CLIENT
+{
+    currentPage = FW_GetCurrentRecNum();
+
+    applicant_name = FW_GetValue(1212, 申请人姓名, currentPage);
+    if(applicant_name == "")
+    {
+        FW_Dialog1(请填写“姓名”！);
+        return(0);
+    }
+
+    apply_number = FW_GetValue(1212, 申请数量, currentPage);
+    if(apply_number <= 0)
+    {
+        FW_Dialog1("“申请数量”需大于0！");
+        return(0);
+    }
+
+    communiity = FW_GetValue(1212, 社区, currentPage);
+    if(communiity == "")
+    {
+        FW_Dialog1(请填写“社区”！);
+        return(0);
+    }
+
+    phone = FW_GetValue(1212, 电话, currentPage);
+    if(phone == "")
+    {
+        FW_Dialog1(请填写“电话”！);
+        return(0);
+    }
+
+    borrow_date = FW_GetValue(1212, 借用日期, currentPage);
+    if(borrow_date == "")
+    {
+        FW_Dialog1(请填写“借用日期”！);
+        return(0);
+    }
+
+    expected_return_date = FW_GetValue(1212, 预计归还日期, currentPage);
+    if(expected_return_date == "")
+    {
+        FW_Dialog1(请填写“预计归还日期”！);
+        return(0);
+    }
+
+    use = FW_GetValue(1212, 用途, currentPage);
+    if(use == "")
+    {
+        FW_Dialog1(请填写“事项”！);
+        return(0);
+    }
+    applicant_us = FW_GetUserID(2);
+
+    existing_stock = FW_GetValue(1212, 现有库存, currentPage);
+    apply_number = FW_GetValue(1212, 申请数量, currentPage);
+    if(apply_number > existing_stock)
+    {
+        FW_Dialog1(申请数量超出现有库存范围);
+        return(0);
+    }
+    is_continue = FW_Dialog1(是否确认申请信息填写无误并继续进行提交？);
+    if(is_continue == 0)
+    {
+        return(0);
+    }
+    item_number = FW_GetValue(1212, 物品编号, currentPage);
+    applicant_note = FW_GetValue(1212, 申请人备注, currentPage);
+    item_name = FW_GetValue(1212, 物品名称, currentPage);
+    item_category = FW_GetValue(1212, 物品类别, currentPage);
+    unit = FW_GetValue(1212, 单位, currentPage);
+    specification_model = FW_GetValue(1212, 规格型号, currentPage);
+    apply_date = FW_GetSysDate(0);
+}
+SERVER
+{
+    condition = "1116, apply_date@申请日期, item_number@物品编号, apply_number@申请数量, applicant_us@UserName";
+    st2 = FW_FindRecords(condition, 1);
+    if(st2.mError  == 0)
+    {
+        already_applied = 1;
+        return(GotoClient);
+    }
+    newPage = FW_AddNewPage_w( 1116 );
+    FW_SetValue_w(1116, 物品编号, newPage, item_number);
+    FW_SetValue_w(1116, 申请数量, newPage, apply_number);
+    FW_SetValue_w(1116, 用途, newPage, use);
+    FW_SetValue_w(1116, UserName, newPage, applicant_us);
+    FW_SetValue_w(1116, 申请人备注, newPage, applicant_note);
+    FW_SetValue_w(1116, 物品名称, newPage, item_name);
+    FW_SetValue_w(1116, 物品类别, newPage, item_category);
+    FW_SetValue_w(1116, 单位, newPage, unit);
+    FW_SetValue_w(1116, 规格型号, newPage, specification_model);
+    FW_SetValue_w(1116, 领用状态, newPage, "待审核");
+    FW_SetValue_w(1116, 申请日期, newPage, apply_date);
+    FW_SetValue_w(1116, 申请类型, newPage, "借用");
+    FW_SetValue_w(1116, 预计归还日期, newPage, expected_return_date);
+    FW_SetValue_w(1116, 申请人姓名, newPage, applicant_name);
+    FW_SetValue_w(1116, 社区, newPage, communiity);
+    FW_SetValue_w(1116, 借用日期, newPage, borrow_date);
+    FW_SetValue_w(1116, 电话, newPage, phone);
+    FW_SetValue_w(1116, 物品使用状态, newPage, "借用待审核");
+
+    FW_SetValue_w(1212, 申请人姓名, currentPage, "");
+    FW_SetValue_w(1212, 申请数量, currentPage, "");
+    FW_SetValue_w(1212, 社区, currentPage, "");
+    FW_SetValue_w(1212, 电话, currentPage, "");
+    FW_SetValue_w(1212, 借用日期, currentPage, "");
+    FW_SetValue_w(1212, 预计归还日期, currentPage, "");
+    FW_SetValue_w(1212, 用途, currentPage, "");
+    FW_SetValue_w(1212, 申请人备注, currentPage, "");
+    return(GotoClient);
+}
+CLIENT
+{
+    if(already_applied == 1)
+    {
+        FW_Dialog1(已提交过相同的申请！);
+        return(0);
+    }
+    FW_SetValue_w(1212, 申请人姓名, currentPage, "");
+    FW_SetValue_w(1212, 申请数量, currentPage, "");
+    FW_SetValue_w(1212, 社区, currentPage, "");
+    FW_SetValue_w(1212, 电话, currentPage, "");
+    FW_SetValue_w(1212, 借用日期, currentPage, "");
+    FW_SetValue_w(1212, 预计归还日期, currentPage, "");
+    FW_SetValue_w(1212, 用途, currentPage, "");
+    FW_SetValue_w(1212, 申请人备注, currentPage, "");
+    FW_SetValue_w(1212, 物品使用历史列表, currentPage, "ClientListWinRefresh");
+    FW_Dialog1(借用申请提交成功！);
+}

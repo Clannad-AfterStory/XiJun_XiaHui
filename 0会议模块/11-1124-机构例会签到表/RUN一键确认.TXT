@@ -1,0 +1,299 @@
+FIELD
+{
+    .1124.状态;
+    .1124.记录人员姓名;
+    .1124.签到人;
+    .1124.新建人工号;
+    .1124.签到权限职务;
+    .1124.新建日期;
+    .1124.会议编号;
+    .1124.会议日期;
+    .1124.会议开始时间;
+    .1124.会议结束时间;
+    .1124.参加人数;
+    .1124.会议签到人数;
+    .1124.迟到人数;
+    .1124.缺席人数;
+    .1124.请假人数;
+    .1124.其它备注人数;
+    .1124.剩余签到人数;
+    .1124.参会人员列表;
+    .1124.签到状态;
+    .1124.备注;
+
+    .1087.UserName;
+    .1087.POST;
+    .1087.姓名;
+    .1087.部门;
+
+    .1235.处理人工号;
+    .1235.事件状态;
+    .1235.审批状态;
+    .1235.处理日期;
+    .1235.会议编号;
+    .1235.会议日期;
+    .1235.姓名;
+    .1235.参会人工号;
+    .1235.部门或片区;
+    .1235.是否已签到;
+    .1235.签到或标记时间;
+    .1235.备注;
+}
+VAR
+{
+    int cp, ret, allow_signIn, i, recordpage, permission_len, len_count, related_number, signed_number, number_leave, number_absent;
+    int number_late, number_others;
+    String status, suffix_status, select_str, check_in_status, current_date_time;
+    String current_date, meeting_date, submit_date, remark, meeting_number;
+    String prompted, current_time, current_time_hour, current_time_minute, meeting_time_begin;
+    String interval_minute_begin, current_us, us_builder, recorder, current_name;
+    String current_post, signIn_permission, event_status, sign_in_status;
+    str 
+    Struct2 st2_1235, st2_1087;
+    Struct0 st0;
+}
+CLIENT
+{
+    cp =  FW_GetCurrentRecNum();
+    status = FW_GetValue(1124, 状态, cp);
+    suffix_status = status.Mid(6);
+    if(suffix_status == "签到完毕")
+    {
+        FW_Dialog1("所有人员都已标记确认，无法再进行一键确认！");
+        return(0);
+    }
+    st0.message = "“1.正常签到；2.迟到；3请假；4.缺席；5.错误隐藏；”请输入相应序号后点击继续将剩下所有未标记确认的人员进行对应操作：";
+    st0.sVALUE = "1";
+    ret = FW_Dialog1(st0);
+    if(ret == 0){return(0);}
+    select_str = st0.sVALUE;
+    if(select_str == "1")
+    {
+        check_in_status = "1.正常签到";
+    }else if(select_str == 2)
+    {
+        check_in_status = "2.迟到";
+    }else if(select_str == 3)
+    {
+        check_in_status = "3.请假";
+    }else if(select_str == 4)
+    {
+        check_in_status = "4.缺席";
+    }else if(select_str == 5)
+    {
+        check_in_status = "5.错误隐藏";
+    }else
+    {
+        FW_Dialog1("序号输入有误！");
+        Goto(0);
+    }
+    current_date_time = FW_GetSysDateTime(1, 0);
+    current_date = FW_GetSysDate(0);
+    meeting_date = FW_GetValue(1124, 会议日期, cp);
+    submit_date = FW_GetValue(1124, 新建日期, cp);
+    if((current_date != meeting_date)&&(submit_date <= meeting_date))
+    {
+        prompted = "签到确认只在会议日期当天 " + meeting_date + " 开放！";
+        FW_Dialog1(prompted);
+        return(0);
+    }else if(current_date == meeting_date)
+    {
+        //当前时间与会议时间的分钟差值计算
+        current_time = FW_GetSysTime(1);
+        current_time = current_time.Left(4);
+        current_time_hour = current_time.Left(2);
+        current_time_minute = current_time.Mid(2);
+        current_time = current_time_hour + ":" + current_time_minute;
+        meeting_time_begin = FW_GetValue(1124, 会议开始时间, cp);
+        interval_minute_begin = FW_SpanDateTime(meeting_time_begin, current_time, 1);
+        if(interval_minute_begin > 60)
+        {
+            FW_Dialog1("会议签到在会议开展前一个小时开放！");
+            return(0);
+        }
+    }
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+    FW_FormOpen(1087);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+    //签到权限只对会议建立人员、记录人员、行政专员和执行主任开放
+    allow_signIn = 0;
+    current_us = FW_GetUserID(2);
+    us_builder = FW_GetValue(1124, 新建人工号, cp);
+    recorder = FW_GetValue(1124, 记录人员姓名, cp); //记录人员姓名域可能填写的是员工工号
+    if((current_us != us_builder)&&(current_us != recorder))
+    {
+        st2_1087 = FW_FindRecords("1087, current_us@UserName", 1);
+        if(st2_1087.mError != 0)
+        {
+            FW_Dialog1(“系统中暂未找到目前登录账号的相关用户信息，请稍候再试！”);
+            return(0);
+        }else
+        {
+            recordpage = st2_1087.RecordNoList.Get[0];
+            current_name = FW_GetValue(1087, 姓名, recordpage);//记录人员姓名域可能填写的是员工姓名
+            if(current_name != recorder)
+            {
+                
+                current_post = FW_GetValue(1087, POST, recordpage);
+                //当前账号不是会议建立者账号和记录者帐号时，从1276的签到权限职务域中获取另外允许签到权限的人员职务,该域的不同职务需以英文分号分隔和结尾
+                signIn_permission = FW_GetValue(1124, 签到权限职务, cp);
+                permission_len = signIn_permission.Length();
+                for(len_count=0; len_count<permission_len; len_count++)
+                {
+                    semicolon_location = signIn_permission.Find(";");
+                    if(semicolon_location == -1){break;}
+                    permission_post = signIn_permission.Left(semicolon_location);
+                    if(current_post == permission_post)
+                    {
+                        allow_signIn = 1;
+                        break;
+                    }
+                    semicolon_location++;
+                    signIn_permission = signIn_permission.Mid(semicolon_location);
+                }
+            }
+            else
+            {
+                allow_signIn = 1;
+            }
+        }
+    }else
+    {
+        allow_signIn = 1;
+    }
+    if(allow_signIn == 0)
+    {
+        FW_Dialog1(“会议只允许使用会议建立者、会议记录者、行政专员和执行主任的帐号进行签到！”);
+        return(0);
+    }
+    remark = FW_GetValue(1124, 备注, cp);
+    if(remake != "5.错误隐藏")
+    {
+        if(remark == "1.正常签到")
+        {
+            f_name = "会议签到人数";
+            
+        }else if(remark == "2.迟到")
+        {
+            f_name = "迟到人数";
+        }else if(remake == "3.请假")
+        {
+            f_name = "请假人数";
+        }else if(remake == "4.缺席")
+        {
+            f_name = "缺席人数";
+        }
+        related_number = FW_GetValue(1124, f_name, cp);
+    }else
+    {
+        meeting_number = "错误隐藏" + meeting_number;
+        current_us = "错误隐藏" + current_us;
+    }
+    participants = FW_GetValue(1124, 参加人数, cp);
+    approval_status = "待签到";
+    meeting_number = FW_GetValue(1124, 会议编号, cp);
+    event_status = "已处理";
+}
+SERVER
+{
+    st2_1235 = FW_FindRecords("1235, approval_status@审批状态, meeting_number@会议编号", 0);
+    if(st2_1235.mError == 0)
+    {
+        total = st2_1235.count;
+        for(i=0; i<total; i++)
+        {
+            recordpage = st2_1235.RecordNoList.Get[i];
+            FW_SetValue_w(1235, 会议编号, recordpage, meeting_number);
+            FW_SetValue_w(1235, 参会人工号, recordpage, current_us);
+            FW_SetValue_w(1235, 事件状态, recordpage, event_status);
+            FW_SetValue_w(1235, 处理日期, recordpage, current_date);
+            FW_SetValue_w(1235, 审批状态, recordpage, remark);
+            FW_SetValue_w(1235, 备注, recordpage, remark);
+            FW_SetValue_w(1235, 签到或标记时间, recordpage, current_date_time);
+        }
+        if(remake != "5.错误隐藏")
+        {
+            related_number = related_number + total;
+            FW_SetValue_w(1124, f_name, cp, related_number);
+            if(remake == "2.迟到")
+            {
+                signed_number = FW_GetValue(1124, 会议签到人数, cp);
+                signed_number = signed_number + total;
+                FW_SetValue_w(1124, 会议签到人数, cp, signed_number);
+                
+            }
+        }else
+        {
+            is_error_hiding = 1；
+            participants = participants - total;
+            FW_SetValue_w(1124, 参加人数, cp, participants);
+        }
+        signed_number = FW_GetValue(1124, 会议签到人数, cp);
+        number_late = FW_GetValue(1124, 迟到人数, cp);
+        number_absent = FW_GetValue(1124, 缺席人数, cp);
+        number_leave = FW_GetValue(1124, 请假人数, cp);
+        number_others = FW_GetValue(1124, 其它备注人数, cp);
+        if(signed_number > 0)
+        {
+            remain = participants - signed_number - number_absent - number_leave - number_others;
+            remain_str = remain.toString;
+            signed_number_str = signed_number.toString;
+            if(number_late > 0)
+            {
+                late_str = number_late.toString;
+                prompt_late = "（含迟到" + late_str + "人）";
+            }
+            sign_in_status = "正常签到" + signed_number_str + "人" + prompt_late + "，剩余" + remain_str + "人未签到!";
+        }
+        if(number_leave > 0)
+        {
+            leave_str = number_leave.toString;
+            prompt_leave = "请假" + leave_str + "人，";
+        }
+        if(number_absent > 0)
+        {
+            absent_str = number_absent.toString;
+            prompt_absent = "缺席" + absent_str + "人，";
+        }
+        if(number_others > 0)
+        {
+            others_str = number_others.toString;
+            prompt_others = "其它情况" + others_str + "人，";
+        }
+        sign_in_status = prompt_leave + prompt_absent + prompt_others + sign_in_status;
+        FW_SetValue_w(1124, 签到状态, cp, sign_in_status);
+    }else
+    {
+        find_failure = 1;
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    if(remake != "5.错误隐藏")
+    {
+        FW_SetValue_w(1124, f_name, cp, related_number);
+        if(remake == "2.迟到")
+        {
+            FW_SetValue_w(1124, 会议签到人数, cp, signed_number);
+        }
+    }else if(remake == "5.错误隐藏")
+    {
+        FW_SetValue_w(1124, 参加人数, cp, participants);
+    }else
+    {
+        FW_Dialog1("当前该会议中暂未查找到待签到标记的人员！");
+    }
+}

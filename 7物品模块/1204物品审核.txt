@@ -1,0 +1,182 @@
+FIELD
+{
+    .1205.物品编号;
+    .1205.申请数量;
+    .1205.审核日期;
+    .1205.审核人工号;
+    .1205.审核人姓名;
+    .1205.领用状态;
+    .1205.物品使用状态;
+    .1205.审核备注;
+    .1205.审核结果;
+
+    .1087.UserName;
+    .1087.姓名;
+    
+    .1114.状态;
+    .1114.现有库存;
+    .1114.物品编号;
+}
+VAR
+{
+    String s物品编号, s审核人工号, S审核结果, S审核备注, s物品编号搜索, s审核日期, s审核人工号查找姓名, s审核人姓名, s当前页工号, s领用状态, s物品使用状态;
+    int is_continue, cp, np, rec, flag, flag_two, i申请数量, i现有库存, no_go;
+    Struct2 st1, st2;
+    Struct0 st0;
+}
+CLIENT
+{
+    is_continue = FW_Dialog1(审核中...请按“继续”并等待审核结果提示。);
+    if(is_continue == 0)
+    {
+        return(0);
+    }
+    cp = FW_GetCurrentRecNum();
+    s物品编号 = FW_GetValue(1205,物品编号,cp);
+    i申请数量 = FW_GetValue(1205,申请数量,cp);
+    s领用状态 = FW_GetValue(1205,领用状态,cp);
+    s物品使用状态 = FW_GetValue(1205,物品使用状态,cp);
+    if(s领用状态 != "待审核")
+    {
+        FW_Dialog1(该申请已审核过或状态不对！);
+        return(0);	
+    }
+    S审核结果 = FW_GetValue(1205,审核结果,cp);
+    if(S审核结果 == "")
+    {
+        FW_Dialog1(审核结果不能为空！);
+        return(0);	
+    }
+    s审核人工号 = FW_GetUserID(2);
+    S审核备注 = FW_GetValue(1205,审核备注,cp);
+    no_go = 0;
+}
+SERVER
+{
+    s审核日期 = FW_GetSysDate(0);
+    s审核人工号查找姓名 = "1087,s审核人工号@UserName";
+    st1 = FW_FindRecords(s审核人工号查找姓名,1);
+    np = st1.RecordNoList.Get[0];
+    s审核人姓名 = FW_GetValue(1087,姓名,np);
+    s物品编号搜索 = "1114,s物品编号@物品编号";
+    st2 = FW_FindRecords(s物品编号搜索,1);
+    if(st2.mError == 0)
+    {
+        s当前页工号 = FW_GetValue(1205,审核人工号,cp);
+        if(s当前页工号 == "")
+        {
+            rec = st2.RecordNoList.Get[0];
+            i现有库存 = FW_GetValue(1114,现有库存,rec);
+            if(S审核结果 == "通过")
+            {
+                if(i申请数量 <= i现有库存)
+                {
+                    flag = 1;
+                    i现有库存 = i现有库存 - i申请数量;
+                    FW_SetValue_w(1114,现有库存,rec,i现有库存);
+                    FW_SetValue_w(1205,审核日期,cp,s审核日期);
+                    FW_SetValue_w(1205,审核人工号,cp,s审核人工号);
+                    FW_SetValue_w(1205,审核人姓名,cp,s审核人姓名);
+                    FW_SetValue_w(1205,领用状态,cp,"已审核");
+                    if(s物品使用状态 == "借用待审核")
+                    {
+                        FW_SetValue_w(1205,物品使用状态,cp,"借用待归还");
+                    }else
+                    {
+                        FW_SetValue_w(1205,物品使用状态,cp,"领用已审核");
+                    }
+                    if(i现有库存 == 0)
+                    {
+                        flag_two = 1;
+                        FW_SetValue_w(1114,状态,rec,"已用完");
+                    }
+                }else if(i申请数量 > i现有库存)
+                {
+                    flag = 2;
+                    return(GotoClient);
+                }
+            }else
+            {
+                no_go = 1;
+                FW_SetValue_w(1205,审核日期,cp,s审核日期);
+                FW_SetValue_w(1205,审核人工号,cp,s审核人工号);
+                FW_SetValue_w(1205,审核人姓名,cp,s审核人姓名);
+                FW_SetValue_w(1205,领用状态,cp,"已审核");
+                if(s物品使用状态 == "借用待审核")
+                {
+                    FW_SetValue_w(1205,物品使用状态,cp,"借用审核不通过");
+                }else
+                {
+                    FW_SetValue_w(1205,物品使用状态,cp,"领用审核不通过");
+                }
+            }
+            FW_SetValue_w(1205,审核结果,cp,S审核结果);
+            FW_SetValue_w(1205,审核备注,cp,S审核备注);
+            return(GotoClient);
+        }
+        flag = 3;
+        return(GotoClient);
+    }
+    flag = 0;
+    return(GotoClient);
+}
+CLIENT
+{
+    FW_FormOpen(1114);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+    if(flag == 1)
+    {
+        FW_SetValue_w(1114,现有库存,rec,i现有库存);
+        FW_SetValue_w(1205,审核日期,cp,s审核日期);
+        FW_SetValue_w(1205,审核人工号,cp,s审核人工号);
+        FW_SetValue_w(1205,审核人姓名,cp,s审核人姓名);
+        FW_SetValue_w(1205,领用状态,cp,"已审核");
+        if(s物品使用状态 == "借用待审核")
+        {
+            FW_SetValue_w(1205,物品使用状态,cp,"借用待归还");
+        }else
+        {
+            FW_SetValue_w(1205,物品使用状态,cp,"领用已审核");
+        }
+        if(flag_two == 1)
+        {
+            FW_SetValue_w(1114,状态,rec,"已用完");
+        }
+        FW_Dialog1(审核完成！);
+    }else if(no_go == 1)
+    {
+        FW_SetValue_w(1205,审核日期,cp,s审核日期);
+        FW_SetValue_w(1205,审核人工号,cp,s审核人工号);
+        FW_SetValue_w(1205,审核人姓名,cp,s审核人姓名);
+        FW_SetValue_w(1205,领用状态,cp,"已审核");
+        if(s物品使用状态 == "借用待审核")
+        {
+            FW_SetValue_w(1205,物品使用状态,cp,"借用审核不通过");
+        }else
+        {
+            FW_SetValue_w(1205,物品使用状态,cp,"领用审核不通过");
+        }
+    }
+    else if(flag == 2)
+    {
+        FW_Dialog1(物品库存不足！);
+    }else if(flag == 3)
+    {
+        FW_Dialog1(此申请单已审核过，请勿重复审核！);
+    }else if(flag == 0)
+    {
+        FW_Dialog1(库存中无此物品！);
+    }
+}
+SERVER
+{
+    st0.FormID = 1204;
+    st0.Record = 0;
+    return(st0);
+}

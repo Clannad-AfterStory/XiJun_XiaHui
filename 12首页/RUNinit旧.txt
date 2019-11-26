@@ -1,0 +1,54 @@
+FIELD
+{
+    .1024.UserName;
+    .1024.待办数字;
+
+    .1235.事件状态;
+    .1235.处理人工号;
+
+}
+VAR
+{
+    int count_to_do, us_record;
+    String current_us, condition, status, string_to_do;
+    Struct0 st0;
+    Struct2 st2;
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+    status = "待处理";
+    st2 = FW_FindRecords("1024, current_us@UserName", 1);
+    us_record = st2.RecordNoList.Get[0];
+    condition = "1235, current_us@处理人工号, status@事件状态";
+}
+SERVER
+{
+    st2 = FW_FindRecords(condition, 0);
+    if(st2.mError != 0)
+    {
+        FW_SetValue_w(1024, 待办数字, us_record, "（0）");
+    }else
+    {
+        count_to_do = st2.count;
+        string_to_do = count_to_do.toString;
+        string_to_do = "（" + string_to_do + "）";
+        FW_SetValue_w(1024, 待办数字, us_record, string_to_do);
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    if(st2.mError != 0)
+    {
+        FW_SetValue_w(1024, 待办数字, us_record, "（0）");
+    }else
+    {
+        FW_SetValue_w(1024, 待办数字, us_record, string_to_do);
+    }
+    st0 = FW_GotoFormPage(1024, us_record);
+}
+SERVER
+{
+    return(st0);
+}

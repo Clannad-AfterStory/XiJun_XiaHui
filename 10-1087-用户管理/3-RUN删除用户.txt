@@ -1,0 +1,63 @@
+// @
+// @Author: LRT
+// @Date: 2019-07-17 00:24:55
+// @LastEditTime: 2019-11-13 13:23:07
+// @LastEditors: LRT
+// @Description: 霞辉删除用户
+// @FilePath: \程序\10-1087-用户管理\3-RUN删除用户.txt
+// @
+FIELD
+{
+    .1087.State;
+    .1087.UserName;
+    .1087.用户ID;
+}
+VAR
+{
+    int cp, total_rec, i, rec;
+    String us, us_status, us_name, usID;
+    Struct2 st20;
+}
+CLIENT
+{
+    cp = CURRENT.Record;
+    us = FW_GetValue(1087, UserName, cp);
+    us_status = FW_GetValue(1087, State, cp);	
+    if(us_status == "已删除")
+    {
+        FW_Dialog1(此帐号已删除过，请勿重复删除！);
+        return(0);
+    }
+    us_name = "UserName";
+}
+SERVER
+{
+    FW_SetValue_w(0, us_name, -1, us);
+    FW_SetValue_w(1087, State, cp, "已删除");
+    return(GotoClient);
+}
+CLIENT
+{
+    FW_SetValue_w(1087, State, cp, "已删除");
+}
+SERVER
+{
+    us_status = "使用中";
+    st20 = FW_FindRecords("1087, us_status@State", 0);
+    total_rec = st20.count;
+    for(i=0; i<total_rec; i++)
+    {
+        rec = st20.RecordNoList.Get[i];
+        us = FW_GetValue(1087, UserName, rec);
+        usID = FW_GetUserID(us);
+        FW_SetValue_w(1087, 用户ID, rec, usID); //因删除了某个帐号，需重新赋值用户ID
+    }
+    //FW_Dialog1(删除成功！);
+    return(GotoClient);
+}
+CLIENT
+{
+    FW_SetValue_w(1087, "BeNULL", 0, "");  //用户表1087需重新加载
+    FW_Dialog1(usID);
+    FW_Dialog1(删除成功！);
+}

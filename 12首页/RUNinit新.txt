@@ -1,0 +1,78 @@
+FIELD
+{
+    .1024.UserName;
+    .1024.姓名;
+    .1024.待办数字;
+
+    .1235.事件状态;
+    .1235.处理人工号;
+
+    .1087.UserName;
+    .1087.姓名;
+
+}
+VAR
+{
+    Struct0 st0;
+    Struct2 st2_1024, st2_1087;
+    String current_us, current_name, find_name_condition, todo_condition, status, string_to_do;
+    int count_to_do, us_record, rec_1087;
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+    status = "待处理";
+    st2_1024 = FW_FindRecords("1024, current_us@UserName", 1);
+    if(st2_1024.mError == 0)
+    {
+        us_record = st2_1024.RecordNoList.Get[0];
+        todo_condition = "1235, current_us@处理人工号, status@事件状态";
+    }else
+    {
+        find_name_condition = "1087, current_us@UserName";
+    }
+}
+SERVER
+{
+    if(st2_1024.mError == 0)
+    {
+        st2_1024 = FW_FindRecords(todo_condition, 0);
+        if(st2_1024.mError != 0)
+        {
+            FW_SetValue_w(1024, 待办数字, us_record, "（0）");
+        }else
+        {
+            count_to_do = st2_1024.count;
+            string_to_do = count_to_do.toString;
+            string_to_do = "（" + string_to_do + "）";
+            FW_SetValue_w(1024, 待办数字, us_record, string_to_do);
+        }
+    }else
+    {
+        st2_1087 = FW_FindRecords(find_name_condition, 1);
+        if(st2_1087.mError == 0)
+        {
+            rec_1087 = st2.RecordNoList.Get[0];
+            current_name = FW_GetValue(1087, 姓名, rec_1087);
+            us_record = FW_AddNewPage_w(1024);
+            FW_SetValue_w(1024, UserName, us_record, current_us);
+            FW_SetValue_w(1024, 姓名, us_record, current_us);
+        }
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    if(st2_1024.mError != 0)
+    {
+        FW_SetValue_w(1024, 待办数字, us_record, "（0）");
+    }else
+    {
+        FW_SetValue_w(1024, 待办数字, us_record, string_to_do);
+    }
+    st0 = FW_GotoFormPage(1024, us_record);
+}
+SERVER
+{
+    return(st0);
+}

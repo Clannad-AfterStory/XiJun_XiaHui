@@ -1,0 +1,75 @@
+FIELD
+{
+    .1120.附件信息;
+
+    .1281.会议前的附件域名存放;
+    .1281.会议中的附件域名存放;
+    .1281.pdf0;
+    .1281.pdf00;
+    .1281.pdf000;
+    .1281.ppt1;
+    .1281.ppt2;
+    .1281.ppt3;
+    .1281.ppt4;
+    .1281.ppt5;
+    .1281.ppt6;
+    .1281.word1;
+    .1281.word2;
+    .1281.word3;
+    .1281.pdf1;
+    .1281.pdf2;
+    .1281.pdf3;
+}
+VAR
+{
+    String attachment, attachment_information, attachment_domain_extraction;
+    String attachment_specific_domain_name, pre_attachment_count_str, attachment_count_str;
+    int cp, domain_length, pre_attachment_count, attachment_count, i, j, semicolon_location;
+    StringList attachment_domain;
+}
+CLIENT
+{
+    FW_FormOpen(1281);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+    cp = CURRENT.Record;
+    attachment_domain = [1281, "会议前的附件域名存放", "会议中的附件域名存放"];
+    for(i=0; i<2; i++)
+    {
+        attachment_domain_extraction = attachment_domain.Get[i];
+        attachment_specific_domain_name = FW_GetValue(1281, attachment_domain_extraction, cp);
+        domain_length = attachment_specific_domain_name.Length();
+        for(j=0; j<domain_length; j++)
+        {
+            semicolon_location = attachment_specific_domain_name.Find(";");
+            if(semicolon_location == -1)
+            {
+                break;
+            }
+            attachment = attachment_specific_domain_name.Left(semicolon_location);
+            attachment_information = FW_GetValue(1281, attachment, cp);
+            if((attachment_information != "")&&(i == 0))
+            {
+                pre_attachment_count++;
+            }else if((attachment_information != "")&&(i == 1))
+            {
+                attachment_count++;
+            }
+            semicolon_location++;
+            attachment_specific_domain_name = attachment_specific_domain_name.Mid(semicolon_location);
+        }
+    }
+    pre_attachment_count_str = pre_attachment_count.toString;
+    attachment_count_str = attachment_count.toString;
+    attachment_information = "（会议前需查阅文档 " + pre_attachment_count_str +" 个，会议中相关文档 "+ attachment_count_str +" 个）";
+    FW_SetValue_w(1120, 附件信息, cp, attachment_information);
+}
+SERVER
+{
+    FW_SetValue_w(1120, 附件信息, cp, attachment_information);
+}

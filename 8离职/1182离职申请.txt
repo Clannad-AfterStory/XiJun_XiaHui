@@ -1,0 +1,46 @@
+FIELD
+{
+    .1087.UserName;
+    .1087.POST;
+}
+VAR
+{
+    String current_us, current_post;
+    int rec_1087, target_id;
+    Struct2 st2_1087;
+    Struct0 st0;
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+    target_id = 1267;
+}
+SERVER
+{
+    st2_1087 = FW_FindRecords("1087, current_us@UserName", 1);
+    if(st2_1087.mError == 0)
+    {
+        rec_1087 = st2_1087.RecordNoList.Get[0];
+        current_post = FW_GetValue(1087, POST, rec_1087);
+        if(current_post == "主管")
+        {
+            target_id = 1113;
+        }
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    st0 = FW_GotoFormPage(target_id, 0);
+}
+SERVER
+{
+    return(GotoClient);
+}
+CLIENT
+{
+}
+SERVER
+{
+    return(st0);
+}

@@ -1,0 +1,6 @@
+
+SERVER
+{
+    FW_DeleteRecords_w(.1235(ALL));
+    
+}

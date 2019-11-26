@@ -1,0 +1,300 @@
+FIELD
+{
+    .1102.转正申请状态;
+    .1102.员工状态;
+    .1102.姓名;
+    .1102.性别;
+    .1102.出生日期;
+    .1102.学历;
+    .1102.职称;
+    .1102.婚姻状况;
+    .1102.试用部门;
+    .1102.试用职务;
+    .1102.入职时间;
+    .1102.申请转正时间;
+    .1102.申请人签名;
+    .1102.申请人签名日期;
+    .1102.工作小结word;
+    .1102.员工提交状态;
+    .1102.主管审批状态;
+    .1102.人事审批状态;
+    .1102.总监审批状态;
+    .1102.name1;
+    .1102.name2;
+    .1102.name3;
+    .1102.name4;
+    .1102.UserName;
+    .1102.UserName2;
+    .1102.UserName2备用;
+    .1102.UserName3;
+    .1102.UserName4;
+    .1102.POST1; 
+    .1102.POST2;
+    .1102.POST3;
+    .1102.POST4;
+    .1102.POST5;
+    .1102.1235待处理页;
+    .1102.1235待处理页备用;
+
+    .1087.POST;
+    .1087.UserName;
+    .1087.姓名;
+    .1087.GroupID;
+    .1087.归属范围;
+
+    .1235.事件状态;
+    .1235.处理人姓名;
+    .1235.处理人工号;
+    .1235.处理人职务;
+    .1235.处理人部门;
+    .1235.处理日期;
+    .1235.审批状态;
+    .1235.LinkToFormID;
+    .1235.LinkToFormPage;
+    .1235.提交人姓名;
+    .1235.提交人工号;
+    .1235.内容;
+    .1235.提交日期;
+}
+VAR
+{
+	int SVret;
+    String current_us, apply_us, is_on_job, status_staff, status_executive, status_personnel, status_director;
+    String status_organization, date_form, name, sex, birthday, education, job_title, marry, name_current;
+    String group_try, post_try, date_entry, date_regular_work;
+    String signature_applier, date_signature_applier, front, reverse, word_work_summary;
+    String post_current, post2, post3, post4, post5, group_handle, find_condition, us_handle, name_handle;
+    String range_current, group_current, date_current, field_handle, us_field_handle, status_handle;
+    int cp, is_continue, current_us_in1087, rec_1087, i, total_handle_1087, np;
+    Struct2 st2_1087;
+    StringList sl_field_handle, sl_us_handle;
+}
+CLIENT
+{
+    cp = FW_GetCurrentRecNum();
+    is_on_job = FW_GetValue(1102, 员工状态, cp);
+    if(is_on_job != "在职")
+    {
+        FW_Dialog1(当前员工不是在职状态！);
+        return(0);
+    }
+
+    status_staff = FW_GetValue(1102, 员工提交状态, cp);
+    if(status_staff == "（已提交）")
+    {
+        FW_Dialog1(当前转正申请已进行过提交！);
+        return(0);
+    }
+
+    apply_us = FW_GetValue(1102, UserName, cp);
+    current_us = FW_GetUserID(2);
+    if(current_us != apply_us)
+    {
+        FW_Dialog1(当前登录的账号不是转正员工账号，无法进行提交！);
+        return(0);
+    }
+
+    name = FW_GetValue(1102, 姓名, cp);
+    if(name == "")
+    {
+        FW_Dialog1(请填写 “姓名”！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 姓名, 1);
+
+    sex = FW_GetValue(1102, 性别, cp);
+    if(sex == "")
+    {
+        FW_Dialog1(请填写 "性别"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 性别, 1);
+
+    birthday = FW_GetValue(1102, 出生日期, cp);
+    if(birthday == "")
+    {
+        FW_Dialog1(请填写 "出生日期"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 出生日期, 1);
+
+    education = FW_GetValue(1102, 学历, cp);
+    if(education == "")
+    {
+        FW_Dialog1(请填写 "学历"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 学历, 1);
+
+    job_title = FW_GetValue(1102, 职称, cp);
+    if(job_title == "")
+    {
+        FW_Dialog1(请填写 "职称"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 职称, 1);
+
+    marry = FW_GetValue(1102, 婚姻状况, cp);
+    if(marry == "")
+    {
+        FW_Dialog1(请填写 "婚姻状况"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 婚姻状况, 1);
+
+    group_try = FW_GetValue(1102, 试用部门, cp);
+    if(group_try == "")
+    {
+        FW_Dialog1(请填写 "试用部门"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 试用部门, 1);
+
+    post_try = FW_GetValue(1102, 试用职务, cp);
+    if(post_try == "")
+    {
+        FW_Dialog1(请填写 "试用职务"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 试用职务, 1);
+
+    date_entry = FW_GetValue(1102, 入职时间, cp);
+    if(post_try == "")
+    {
+        FW_Dialog1(请填写 "入职时间"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 入职时间, 1);
+
+    date_regular_work = FW_GetValue(1102, 申请转正时间, cp);
+    if(date_regular_work == "")
+    {
+        FW_Dialog1(请填写 "申请转正时间"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 申请转正时间, 1);
+
+    signature_applier = FW_GetValue(1102, 申请人签名, cp);
+    if(signature_applier=="")
+    {
+        FW_Dialog1(请填写 "申请人签名"！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 申请人签名, 1);
+
+    date_signature_applier = FW_GetValue(1102, 申请人签名日期, cp);
+    if(date_signature_applier == "")
+    {
+        FW_Dialog1(请填写 "申请人签名日期");
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 申请人签名日期, 1);
+
+    word_work_summary = FW_GetValue(1102, 工作小结word, cp);
+    if(word_work_summary == "")
+    {
+        FW_Dialog1(请上传 "工作小结word" ！);
+        return(0);
+    }
+    FW_SetValueStatus_w(1102, cp, 工作小结word, 1);
+
+    is_continue = FW_Dialog1(确认填写无误并进行提交吗？);
+    if(is_continue == 0)
+    {
+        return(0);
+    }
+}
+SERVER
+{
+    name_current = FW_GetValue(1102, name1, cp);
+    date_current = FW_GetSysDate(0);
+    st2_1087 = FW_FindRecords("1087, current_us@UserName", 1);
+    rec_1087 = st2_1087.RecordNoList.Get[0];
+    post_current = FW_GetValue(1087, POST, rec_1087);
+    range_current = FW_GetValue(1087, 归属范围, rec_1087);
+    //确定下面各流程的审批职位
+    if((post_current == "主管")||(range_current == "后台"))
+    {
+        post2 = "服务总监";
+        group_handle = "";
+        post4 = post2;
+        post5 = "执行主任";
+        find_condition = "1087, post2@POST";
+    }else if((post_current == "服务总监")||(post_current == "运营总监"))
+    {
+        post2 = "执行主任";
+        group_handle = "";
+        post4 = post2;
+        post5 = post2;
+        find_condition = "1087, post2@POST";
+    }else if(range_current == "前线")
+    {
+        group_current = FW_GetValue(1087, GroupID, rec_1087);
+        post2 = "主管";
+        group_handle = group_current;
+        post4 = "服务总监";
+        post5 = "执行主任";
+        find_condition = "1087, post2@POST, group_current@GroupID";
+    }
+    sl_field_handle = [1102, "1235待处理页", "1235待处理页备用"];
+    sl_us_handle = [1102, "UserName2", "UserName2备用"];
+    st2_1087 = FW_FindRecords(find_condition, 0);
+    total_handle_1087 = st2_1087.count;
+    for(i=0; i<total_handle_1087; i++)
+    {
+        rec_1087 = st2_1087.RecordNoList.Get[i];
+        us_handle = FW_GetValue(1087, UserName, rec_1087);
+        name_handle = FW_GetValue(1087, 姓名, rec_1087);
+        field_handle = sl_field_handle.Get[i];
+        us_field_handle = sl_us_handle.Get[i];
+        status_handle = "待" + post2 + "审批";
+
+        np = FW_AddNewPage_w(1235);
+        FW_SetValue_w(1102, field_handle, cp, np);
+        FW_SetValue_w(1102, us_field_handle, cp, us_handle);
+
+        FW_SetValue_w(1235, 事件状态, np, "待处理");
+        FW_SetValue_w(1235, 处理人姓名, np, name_handle);
+        FW_SetValue_w(1235, 处理人工号, np, us_handle);
+        FW_SetValue_w(1235, 处理人职务, np, post2);
+        FW_SetValue_w(1235, 处理人部门, np, group_handle);
+        FW_SetValue_w(1235, 处理日期, np, date_current);
+        FW_SetValue_w(1235, 审批状态, np, status_handle);
+        FW_SetValue_w(1235, LinkToFormID, np, "1102");
+        FW_SetValue_w(1235, LinkToFormPage, np, cp);
+        FW_SetValue_w(1235, 提交人姓名, np, name_current);
+        FW_SetValue_w(1235, 提交人工号, np, apply_us);
+        FW_SetValue_w(1235, 内容, np, "转正申请");
+        FW_SetValue_w(1235, 提交日期, np, date_current);
+    }
+    FW_SetValue_w(1102, 员工提交状态, cp, "（已提交）");
+    FW_SetValue_w(1102, POST2, cp, post2);
+    FW_SetValue_w(1102, 主管审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, 人事审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, 总监审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, POST4, cp, post4);
+    FW_SetValue_w(1102, 机构审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, 人事确认状态, cp, "（待确认）");
+    FW_SetValue_w(1102, POST5, cp, post5);
+
+    FW_SetValue_w(1102, 转正申请状态, cp, status_handle);
+    FW_SetValue_w(1102, 填表日期, cp, date_current);
+
+    return(GotoClient);
+}
+CLIENT
+{
+    FW_SetValue_w(1102, 员工提交状态, cp, "（已提交）");
+    FW_SetValue_w(1102, POST2, cp, post2);
+    FW_SetValue_w(1102, 主管审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, 人事审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, 总监审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, POST4, cp, post4);
+    FW_SetValue_w(1102, 机构审批状态, cp, "（待审批）");
+    FW_SetValue_w(1102, 人事确认状态, cp, "（待确认）");
+    FW_SetValue_w(1102, POST5, cp, post5);
+
+    FW_SetValue_w(1102, 转正申请状态, cp, status_handle);
+    FW_SetValue_w(1102, 填表日期, cp, date_current);
+    FW_Dialog1(转正申请提交成功！);
+}

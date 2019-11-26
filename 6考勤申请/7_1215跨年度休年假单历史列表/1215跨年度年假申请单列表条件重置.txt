@@ -1,0 +1,21 @@
+FIELD
+{
+    .1215.Query申请调休年度;
+    .1215.QueryUserName1;
+    .1215.Query姓名;
+}
+VAR
+{
+    String date, year, us;
+    Struct0 st0_1215;
+}
+CLIENT
+{
+    date = FW_GetSysDate(0);
+    year = date.Left(4);
+    us = FW_GetUserID(2);
+    FW_SetValue_w(1215, QueryUserName1, 0, "****");
+    FW_SetValue_w(1215, Query申请调休年度, 0, "****");
+    FW_SetValue_w(1215, Query姓名, 0, "****");
+    FW_RecordSort(1215, Query申请调休年度, 0);
+}

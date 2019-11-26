@@ -1,0 +1,29 @@
+FIELD
+{
+    .1102.员工工号;
+}
+VAR
+{
+    String current_us;
+    int rec;
+    Struct2 st2_1102;
+    Struct0 st0_1102;
+}
+CLIENT
+{
+    current_us = FW_GetUserID(2);
+}
+SERVER
+{
+    st2_1102 = FW_FindRecords("1102, current_us@员工工号", 1);
+    rec = st2_1102.RecordNoList.Get[0];
+    return(GotoClient);
+}
+CLIENT
+{
+    st0_1102 = FW_GotoFormPage(1102, rec);
+}
+SERVER
+{
+    return(st0_1102);
+}

@@ -1,0 +1,22 @@
+FIELD
+{
+    .1150.Query请假起始日期;
+    .1150.QueryUserName1;
+    .1150.Query姓名;
+}
+VAR
+{
+    String date, year_month, us;
+    Struct0 st0_1150;
+}
+CLIENT
+{
+    date = FW_GetSysDate(0);
+    year_month = date.Left(7);
+    year_month = year_month + "*";
+    us = FW_GetUserID(2);
+    FW_SetValue_w(1150, QueryUserName1, 0, "****");
+    FW_SetValue_w(1150, Query请假起始日期, 0, "****");
+    FW_SetValue_w(1150, Query姓名, 0, "****");
+    FW_RecordSort(1150, Query请假起始日期, 0);
+}

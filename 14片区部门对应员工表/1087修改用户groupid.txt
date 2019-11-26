@@ -1,0 +1,209 @@
+// @
+// @Author: LRT
+// @Date: 2019-07-17 19:06:52
+// @LastEditTime: 2019-11-20 13:53:46
+// @LastEditors: LRT
+// @Description: 1147片区部门对应员工表-确认更新
+// @FilePath: \程序\1087修改用户groupid.txt
+// @
+FIELD
+{
+    .1087.State;
+    .1087.姓名;
+    .1087.GroupID;
+    .1087.POST;
+    .1087.归属范围;
+
+    .1147.归属范围;
+    .1147.片区部门;
+    .1147.员工;
+    .1147.主管;
+
+    .1183.员工状态;
+    .1183.姓名;
+    .1183.归属范围;
+    .1183.现属部门;
+    .1183.现任岗位;
+
+    .1139.姓名;
+    .1139.状态;
+    .1139.GroupID;
+    .1139.GroupID1;
+    .1139.GroupID2;
+    .1139.GroupID3;
+    .1139.GroupID4;
+
+    .1044.姓名;
+    .1044.状态;
+    .1044.UserName2;
+    .1044.GroupID;
+    .1044.GroupID1;
+    .1044.GroupID2;
+    .1044.GroupID3;
+    .1044.GroupID4;
+
+    .1138.姓名;
+    .1138.状态;
+    .1138.UserName2;
+    .1138.GroupID;
+    .1138.GroupID1;
+    .1138.GroupID2;
+    .1138.GroupID3;
+    .1138.GroupID4;
+
+}
+VAR
+{
+    int i, j, k, total_rec,total_rec_1147, flag, i_application_form, rec, ret;
+    int rec_1087, rec_1183;
+    String condition, staff_name, include_staff_name, groupID, scope, supervisor, approval_status;
+    String us2, application_form, find_processing_apply_condition, staff_us_second_process;
+    Struct2 st2_find_account_in_use, st2_find_processing_apply;
+    StringList sl_applicantion_form;
+}
+SERVER
+{
+    condition = "使用中";
+    st2_find_account_in_use = FW_FindRecords("1087, condition@State", 0);
+    total_rec = st2_find_account_in_use.count;
+    for(i=0; i<total_rec; i++)
+    {
+        rec_1087 = st2_find_account_in_use.RecordNoList.Get[i];
+        staff_name = FW_GetValue(1087, 姓名, rec_1087);
+        total_rec_1147 = FW_GetTotalRecords(1147);
+        for(j=0; j<total_rec_1147; j++)
+        {
+            include_staff_name = FW_GetValue(1147, 员工, j);
+            flag = include_staff_name.Find(staff_name, 0);
+            if(flag != -1)
+            {
+                groupID = FW_GetValue(1147, 片区部门, j);
+                scope = FW_GetValue(1147, 归属范围, j);
+                FW_SetValue_w(1087, GroupID, rec_1087, groupID);
+                FW_SetValue_w(1087, 归属范围, rec_1087, scope);
+                break;
+            }else
+            {
+                supervisor = FW_GetValue(1147, 主管, j);
+                if((supervisor == staff_name)&&(staff_name != "服务总监"))
+                {
+                    groupID = FW_GetValue(1147, 片区部门, j);
+                    scope = FW_GetValue(1147, 归属范围, j);
+                    FW_SetValue_w(1087, GroupID, rec_1087, groupID);
+                    FW_SetValue_w(1087, 归属范围, rec_1087, scope);
+                    FW_SetValue_w(1087, POST, rec_1087, "主管");
+                    break;
+                }
+                continue;
+            }
+        }
+    }
+    condition = "在职";
+    st2_find_account_in_use = FW_FindRecords("1183, condition@员工状态", 0);
+    total_rec = st2_find_account_in_use.count;
+    for(i=0; i<total_rec; i++)
+    {
+        rec_1183 = st2_find_account_in_use.RecordNoList.Get[i];
+        staff_name = FW_GetValue(1183, 姓名, rec_1183);
+        for(j=0; j<total_rec_1147; j++)
+        {
+            include_staff_name = FW_GetValue(1147, 员工, j);
+            flag = include_staff_name.Find(staff_name, 0);
+            if(flag != -1)
+            {
+                groupID = FW_GetValue(1147, 片区部门, j);
+                scope = FW_GetValue(1147, 归属范围, j);
+                FW_SetValue_w(1183, 现属部门, rec_1183, groupID);
+                FW_SetValue_w(1183, 归属范围, rec_1183, scope);
+                break;
+            }else
+            {
+                supervisor = FW_GetValue(1147, 主管, j);
+                if((supervisor == staff_name)&&(staff_name != "服务总监"))
+                {
+                    groupID = FW_GetValue(1147, 片区部门, j);
+                    scope = FW_GetValue(1147, 归属范围, j);
+                    FW_SetValue_w(1183, 现属部门, rec_1183, groupID);
+                    FW_SetValue_w(1183, 归属范围, rec_1183, scope);
+                    FW_SetValue_w(1183, 现任岗位, rec_1183, "主管");
+                    break;
+                }
+                continue;
+            }
+        }
+    }
+    sl_applicantion_form = ["1139", "1044", "1138"];
+    approval_status = "RANGE(待*)";
+    for(i=0; i<3; i++)
+    {
+        application_form = sl_applicantion_form.Get[i];
+        find_processing_apply_condition = application_form + "," + approval_status + "@状态";
+        st2_find_processing_apply = FW_FindRecords(find_processing_apply_condition, 0);
+        i_application_form = application_form.toIntege;
+        total_rec = st2_find_processing_apply.count;
+        for(j=0; j<total_rec; j++)
+        {
+            rec = st2_find_processing_apply.RecordNoList.Get[j];
+            staff_name = FW_GetValue(i_application_form, 姓名, rec);
+            for(k=0; k<total_rec_1147; k++)
+            {
+                include_staff_name = FW_GetValue(1147, 员工, k);
+                flag = include_staff_name.Find(staff_name, 0);
+                if(flag != -1)
+                {
+                    groupID = FW_GetValue(1147, 片区部门, k);
+                    FW_SetValue_w(i_application_form, GroupID, rec, groupID);
+                    FW_SetValue_w(i_application_form, GroupID1, rec, groupID);
+                    FW_SetValue_w(i_application_form, GroupID3, rec, groupID);
+                    scope = FW_GetValue(1147, 归属范围, k);
+                    if((i == 0)&&(scope == "前线"))
+                    {
+                        FW_SetValue_w(i_application_form, GroupID2, rec, groupID);
+                        FW_SetValue_w(i_application_form, GroupID4, rec, groupID);
+                    }
+                    break;
+                }else
+                {
+                    supervisor = FW_GetValue(1147, 主管, k);
+                    if((supervisor == staff_name)&&(staff_name != "服务总监"))
+                    {
+                        groupID = FW_GetValue(1147, 片区部门, k);
+                        FW_SetValue_w(i_application_form, GroupID, rec, groupID);
+                        FW_SetValue_w(i_application_form, GroupID1, rec, groupID);
+                        FW_SetValue_w(i_application_form, GroupID3, rec, groupID);
+                        break;
+                    }
+                    continue;
+                }
+            }
+            if(i > 0) //
+            {
+                staff_us_second_process = FW_GetValue(i_application_form, UserName2, rec);
+                for(k=0; k<total_rec_1147; k++)
+                {
+                    include_staff_name = FW_GetValue(1147, 员工, k);
+                    flag = include_staff_name.Find(staff_us_second_process, 0);
+                    if(flag != -1)
+                    {
+                        groupID = FW_GetValue(1147, 片区部门, k);
+                        FW_SetValue_w(i_application_form, GroupID2, rec, groupID);
+                    }else
+                    {
+                        supervisor = FW_GetValue(1147, 主管, k);
+                        if((supervisor == staff_name)&&(staff_name != "服务总监"))
+                        {
+                            groupID = FW_GetValue(1147, 片区部门, k);
+                            FW_SetValue_w(i_application_form, GroupID2, rec, groupID);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return(GotoClient);
+}
+CLIENT
+{
+    FW_Dialog1(更新成功！);
+}
+

@@ -1,0 +1,67 @@
+FIELD
+{
+    .1182.RUN公告;
+}
+VAR
+{
+    String notice;
+    int cp, return_value;
+}
+CLIENT
+{
+    cp = CURRENT.Record;
+    notice = FW_GetValue(1182, RUN公告, cp);
+    if(notice == "")
+    {
+        return(0);
+    }else
+    {
+        return_value = FW_SetValue_w(1182, RUN公告, cp, "");
+        if(return_value != 0)
+        {
+            FW_Dialog1("公告清除失败！请稍候再试。");
+            return(0);
+        }
+    }
+}
+SERVER
+{
+    return_value = FW_SetValue_w(1182, RUN公告, cp, "");
+    if(return_value != 0)
+    {
+        FW_Dialog1("公告清除失败！请稍候再试。");
+        return(0);
+    }
+}
+
+//全部通知
+FIELD
+{
+    .1182.RUN公告;
+}
+VAR
+{
+    String notice;
+    int all_page, cp, return_value;
+}
+SERVER
+{
+    all_page = FW_GetTotalRecords(1182);
+    for(cp=0; cp<all_page; cp++)
+    {
+        
+        notice = FW_GetValue(1182, RUN公告, 0);
+        if(notice != "")
+        {
+            return_value = FW_SetValue_w(1182, RUN公告, cp, notice);
+            if(return_value != 0)
+            {
+                FW_Dialog1("赋值公告通知失败！请稍候再试。");
+                return(0);
+            }
+        }else
+        {
+            return(0);
+        }
+    }
+}

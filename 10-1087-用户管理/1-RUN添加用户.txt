@@ -1,0 +1,70 @@
+FIELD
+{
+    .1087.State;
+    .1087.姓名;
+    .1087.GroupID;
+    .1087.UserName;
+    .1087.级别;
+    .1087.Expiry;
+    .1087.Password;
+    .1087.POST;
+    .1087.用户ID;
+}
+VAR
+{
+    int ret, cp;
+    String us, us_level, deadline, us_password, us_post, user_information, stanard_require;
+}
+CLIENT
+{
+    cp = CURRENT.Record;
+    us = FW_GetValue(1087, UserName, cp);
+    if(us == "")
+    {
+        FW_Dialog1(请输入姓名!);
+        return(0);
+    }
+
+    us_level = FW_GetValue(1087, 级别, cp);	
+    if(us_level == "")
+    {
+        FW_Dialog1(请选择级别!);
+        return(0);
+    }
+
+    deadline = FW_GetValue(1087, Expiry, cp);
+    if(deadline == "")
+    {
+        FW_Dialog1(请选择有效日期!);
+        return(0);
+    }
+
+    us_password = FW_GetValue(1087, Password, cp);
+    FW_Dialog1(us_password);
+    if(us_password == "")
+    {
+        FW_Dialog1(请填写密码!);
+        return(0);
+    }
+
+    us_post = FW_GetValue(1087, POST, cp);
+    if(us_post == "")
+    {
+        FW_Dialog1(请选择职务!);
+        return(0);
+    }
+
+    user_information = us + ", " + us_level + ", " + us_post + ", " + us_password +  ", " + deadline;
+    stanard_require = "UserName, UserLevel, UserPost, Password, Expiry";
+}
+SERVER
+{
+    ret = FW_SetValue_w(0, stanard_require, 0, user_information);
+    FW_SetValue_w(1087, State, cp, "使用中");	
+    return(GotoClient);
+} 
+CLIENT
+{
+    FW_SetValue_w(1087, State, cp, "使用中");
+    FW_Dialog1(操作成功！);
+}

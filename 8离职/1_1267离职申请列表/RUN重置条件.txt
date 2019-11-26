@@ -1,0 +1,22 @@
+FIELD
+{
+    .1267.QueryUserName;
+    .1267.Query姓名;
+    .1267.QueryGroupID;
+    .1267.Query离职申请状态;
+}
+VAR
+{
+    int ret;
+    String username;
+    Struct0 st0_1267;
+}
+CLIENT
+{
+    username = FW_GetUserID(2);
+    ret = FW_SetValue_w(1267, QueryUserName, 0, "****");if(ret != 0){FW_Dialog1("1267_QueryUserName_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1267, Query姓名, 0, "****");if(ret != 0){FW_Dialog1("1267_Query姓名_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1267, QueryGroupID, 0, "****");if(ret != 0){FW_Dialog1("1267_QueryGroupID_setvalue_error!");return(0);}
+    ret = FW_SetValue_w(1267, Query离职申请状态, 0, "****");if(ret != 0){FW_Dialog1("1267_Query离职申请状态_setvalue_error!");return(0);}
+    st0_1267 = FW_RecordSort(1267, QueryUserName, 0);if(st0_1267.mError != 0){FW_Dialog1(1267_RecordSort_Failed!);}
+}

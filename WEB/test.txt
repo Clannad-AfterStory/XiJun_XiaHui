@@ -1,0 +1,10 @@
+VAR
+{
+    Struct0 st0;
+}
+SERVER
+{
+    st0.FormID = 1025;
+    st0.Record = 0;
+    return(st0);
+}
